@@ -26,6 +26,7 @@ def recognize_face(image_path):
         confidence = outcome["face_confidence"]
 
         print(f"==== {model_name} facial encoding successful ====")
+        # print(f"Facial representation: {facial_representation}")
         print(f"Vector length: {len(facial_representation)}")
         print(f"Facial area: {face_area}")
         print(f"Confidence: {confidence}")
@@ -36,5 +37,8 @@ def recognize_face(image_path):
         print("Exception type:", type(e).__name__)
         print("Exception message:", str(e))
         return None
-    
-recognize_face("source/output_images/face_1.jpg")
+
+
+# facial_repesentation = recognize_face("output_images/face_2.jpg")
+
+# save_facial_representation(facial_repesentation)

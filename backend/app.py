@@ -13,7 +13,7 @@ app.register_blueprint(employee_bp)
 @app.get("/")
 def home():
     # Redirect to React Dashboard
-    return redirect("http://localhost:5173/add-employee")
+    return redirect("http://localhost:5173/")
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)

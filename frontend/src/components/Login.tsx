@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
-    const videoReference = React.useRef(null);
+    const videoReference = useRef<HTMLVideoElement>(null);
     const navigate = useNavigate();
     useEffect(() => {
         const startCamera = async () => {

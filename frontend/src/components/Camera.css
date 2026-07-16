@@ -5,3 +5,8 @@
     border-radius: 20px;
     margin-bottom: 25px;
 }
+.camera-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

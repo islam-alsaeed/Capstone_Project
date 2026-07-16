@@ -14,11 +14,22 @@ const LoginPage = () => {
             <p style={{ fontSize: "18px", color: "#555", fontWeight: "bold", marginTop: "10px" }}>
                 Please look at the camera to authenticate
             </p>
-            <button className="start-button"
-                onClick={() => navigate("/")}>
-                Go back
-            </button>
+            <div className="button_group">
+                <button className="btn-secondary"
+                    onClick={() => navigate("/")}>
+                    Go back
+                </button>
+                <button className="btn-primary"
+                    onClick={() => navigate("/dashboard/user")}>
+                    capture picture
+                </button>
+            </div>
             <Login />
+
+            <p className="footer">
+                System Version 1.0.0  &copy; 2026 Facial Recognition Control System. All rights reserved.
+            </p>
+
         </div>
     );
 }

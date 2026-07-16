@@ -48,7 +48,7 @@ const Login = () => {
   }, []);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+    <div className="camera-container">
       <div
         className="video-container"
       >

@@ -1,4 +1,4 @@
-import Login from "../components/Login";
+import Login from "../components/Camera";
 import "./LoginPage.css";
 
 const LoginPage = () => {
@@ -7,7 +7,7 @@ const LoginPage = () => {
             {/* <img src="logo.png" alt="Logo" className="login-logo" /> */}
             <img
                 src="logo.png" alt="Logo"
-                className="login-logo"
+                className="app-logo"
             />
             {/* <div className="login-box"></div> */}
             <Login />

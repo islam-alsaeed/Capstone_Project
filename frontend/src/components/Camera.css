@@ -1,0 +1,7 @@
+.video-container {
+    overflow: hidden;
+    width: 650px;
+    height: 550px;
+    border-radius: 20px;
+    margin-bottom: 25px;
+}

@@ -9,7 +9,6 @@ if not os.path.exists(output_path):
 def capture_image(auto_capture):
     print("opencv version: "+cv2.__version__+" hello there")
     # connect to the webcam (0 is the default camera)
-    print("Success! DeepFace was successfully found and loaded.")
 
     #using pre-trained Haar Cascade model for face detection
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')

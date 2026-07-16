@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import "./Camera.css";
 
 const Login = () => {
     const videoReference = useRef<HTMLVideoElement>(null);
@@ -9,9 +10,11 @@ const Login = () => {
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
             if (videoReference.current) {
                 videoReference.current.srcObject = stream;
-            };
-            startCamera();
-        }, []);
+            }
+        };
+        startCamera();
+    }, []);
+
     const sendFrame = async () => {
         const video = videoReference.current;
         if (!video) return;
@@ -45,11 +48,27 @@ const Login = () => {
     }, []);
 
     return (
-        <div>
-            <h2>Face Login</h2>
-            <video ref={videoReference} autoPlay style={{ width: "400px" }} />
-        </div>
-    );
+  <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+    <div
+      className="video-container"
+    >
+      <video
+        ref={videoReference}
+        autoPlay
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+        }}
+      />
+    </div>
+
+    <p style={{ fontSize: "16px", color: "#555" }}>
+      Please look at the camera to authenticate
+    </p>
+  </div>
+);
+
 };
 
 export default Login;

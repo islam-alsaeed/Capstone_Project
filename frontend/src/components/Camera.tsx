@@ -3,71 +3,69 @@ import { useNavigate } from "react-router-dom";
 import "./Camera.css";
 
 const Login = () => {
-    const videoReference = useRef<HTMLVideoElement>(null);
-    const navigate = useNavigate();
-    useEffect(() => {
-        const startCamera = async () => {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            if (videoReference.current) {
-                videoReference.current.srcObject = stream;
-            }
-        };
-        startCamera();
-    }, []);
-
-    const sendFrame = async () => {
-        const video = videoReference.current;
-        if (!video) return;
-
-        const canvas = document.createElement("canvas");
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
-
-        ctx.drawImage(video, 0, 0);
-        const imageData = canvas.toDataURL("image/jpeg");
-
-        const res = await fetch("http://localhost:5000/api/login/detect", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ image: imageData }),
-        });
-
-        const data = await res.json();
-
-        if (data.status === "success") {
-            navigate("/dashboard/user", { state: { employee: data.employee } });
-        }
+  const videoReference = useRef<HTMLVideoElement>(null);
+  const navigate = useNavigate();
+  useEffect(() => {
+    const startCamera = async () => {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      if (videoReference.current) {
+        videoReference.current.srcObject = stream;
+      }
     };
+    startCamera();
+  }, []);
 
-    useEffect(() => {
-        const interval = setInterval(sendFrame, 1000);
-        return () => clearInterval(interval);
-    }, []);
+  const sendFrame = async () => {
+    const video = videoReference.current;
+    if (!video) return;
 
-    return (
-  <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-    <div
-      className="video-container"
-    >
-      <video
-        ref={videoReference}
-        autoPlay
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-        }}
-      />
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.drawImage(video, 0, 0);
+    const imageData = canvas.toDataURL("image/jpeg");
+
+    const res = await fetch("http://localhost:5000/api/login/detect", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image: imageData }),
+    });
+
+    const data = await res.json();
+
+    if (data.status === "success") {
+      navigate("/dashboard/user", { state: { employee: data.employee } });
+    }
+  };
+
+  useEffect(() => {
+    const interval = setInterval(sendFrame, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <div
+        className="video-container"
+      >
+        <video
+          ref={videoReference}
+          autoPlay
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+        />
+      </div>
+
+
     </div>
-
-    <p style={{ fontSize: "16px", color: "#555" }}>
-      Please look at the camera to authenticate
-    </p>
-  </div>
-);
+  );
 
 };
 

@@ -13,7 +13,7 @@ function Home() {
 
       <h1>Welcome to Facial Recoginition control system </h1>
       <p>Click button below to start.</p>
-      <button style={{ margin: '30px', padding: '10px 20px', fontSize: '16px', cursor: 'pointer' }}
+      <button className="start-button"
         onClick={() => navigate("/login")}>
         I am ready start
       </button>

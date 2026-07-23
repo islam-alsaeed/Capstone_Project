@@ -17,6 +17,9 @@ function Home() {
         onClick={() => navigate("/login")}>
         I am ready start
       </button>
+      <p className="footer">
+        System Version 1.0.0  &copy; 2026 Facial Recognition Control System. All rights reserved.
+      </p>
     </div>
   );
 }

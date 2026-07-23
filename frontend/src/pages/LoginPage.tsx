@@ -4,34 +4,33 @@ import "./LoginPage.css";
 
 const LoginPage = () => {
     const navigate = useNavigate();
+
     return (
-        <div className="login-container">
-            <img
-                src="logo.png" alt="Logo"
-                className="app-logo"
-            />
-            <h1>Welcome to Facial Recognition Control System</h1>
-            <p style={{ fontSize: "18px", color: "#555", fontWeight: "bold", marginTop: "10px" }}>
+        <div className="login-container modern-friendly">
+            <img src="logo.png" alt="Logo" className="app-logo" />
+
+            <h1 className="page-title">Facial Recognition Login</h1>
+            <p className="instruction-text">
                 Please look at the camera to authenticate
             </p>
-            <div className="button_group">
-                <button className="btn-secondary"
-                    onClick={() => navigate("/")}>
-                    Go back
-                </button>
-                <button className="btn-primary"
-                    onClick={() => navigate("/dashboard/user")}>
-                    capture picture
-                </button>
+
+            <div className="camera-section">
+                <Login />
             </div>
-            <Login />
 
-            <p className="footer">
-                System Version 1.0.0  &copy; 2026 Facial Recognition Control System. All rights reserved.
-            </p>
+            <div className="button-group">
+                <button className="btn-primary" onClick={() => navigate("/dashboard/user")}>
+                    📸 Take Picture
+                </button>
+                <button className="btn-secondary" onClick={() => navigate("/")}>
+                    Go Back
+                </button>
 
+            </div>
+
+            <p className="footer">System Version 1.0.0</p>
         </div>
     );
-}
+};
 
 export default LoginPage;

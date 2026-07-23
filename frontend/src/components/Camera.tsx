@@ -5,15 +5,27 @@ import "./Camera.css";
 const Login = () => {
   const videoReference = useRef<HTMLVideoElement>(null);
   const navigate = useNavigate();
+  const streamRef = useRef<MediaStream | null>(null);
+
   useEffect(() => {
     const startCamera = async () => {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      streamRef.current = stream;
+
       if (videoReference.current) {
         videoReference.current.srcObject = stream;
       }
     };
+
     startCamera();
+
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
   }, []);
+
 
   const sendFrame = async () => {
     const video = videoReference.current;

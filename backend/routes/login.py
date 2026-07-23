@@ -1,1 +1,0 @@
-from camera.img_capture import capture_frame

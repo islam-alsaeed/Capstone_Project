@@ -13,10 +13,17 @@ import AddIcon from "@mui/icons-material/Add";
 function Employees() {
   return (
     <Paper
+
       sx={{
-        padding: 3,
-        borderRadius: 3,
+
+        borderRadius: 4,
+
+        padding: 4,
+
+        boxShadow: "0 8px 25px rgba(0,0,0,.05)"
+
       }}
+
     >
       <Box
         display="flex"

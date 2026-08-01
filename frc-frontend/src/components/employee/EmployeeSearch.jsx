@@ -1,20 +1,21 @@
-import { TextField, InputAdornment } from "@mui/material";
+import {
+  InputAdornment,
+  TextField,
+} from "@mui/material";
+
 import SearchIcon from "@mui/icons-material/Search";
 
-function EmployeeSearch() {
+import "./EmployeeSearch.css";
+
+function EmployeeSearch({ value = "", onChange }) {
   return (
     <TextField
       fullWidth
+      value={value}
+      onChange={onChange}
       placeholder="Search employee..."
-      variant="outlined"
-      sx={{
-        mb: 3,
-        "& .MuiOutlinedInput-root": {
-          borderRadius: "12px",
-          backgroundColor: "#fff",
-        },
-      }}
-      InputProps={{
+      className="employee-search"
+      inputprops={{
         startAdornment: (
           <InputAdornment position="start">
             <SearchIcon />

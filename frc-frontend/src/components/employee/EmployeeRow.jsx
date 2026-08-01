@@ -4,15 +4,16 @@ import {
   TableRow,
   IconButton,
 } from "@mui/material";
-
+import { useNavigate } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 import StatusChip from "./StatusChip";
 
 function EmployeeRow({ employee }) {
+  const navigate = useNavigate();
   return (
-    <TableRow hover>
+    <TableRow hover onClick={() => navigate(`/employees/${employee.id}`)} style={{ cursor: "pointer" }}>
 
       <TableCell>{employee.id}</TableCell>
 

@@ -37,7 +37,7 @@ function Topbar(){
 
                     placeholder="Search employees..."
 
-                    InputProps={{
+                    inputprops={{
                         startAdornment:<Search/>
                     }}
 

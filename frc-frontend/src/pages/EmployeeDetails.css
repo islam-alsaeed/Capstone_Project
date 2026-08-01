@@ -1,0 +1,270 @@
+.employee-details-page {
+  min-height: 100%;
+  padding: 28px;
+  background: #f5f8fc;
+}
+
+.employee-details-topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.employee-details-topbar .MuiButton-root {
+  min-height: 43px;
+  border-radius: 8px;
+  text-transform: none;
+  font-weight: 650;
+  box-shadow: none;
+}
+
+.employee-details-grid {
+  display: grid;
+  grid-template-columns: 310px minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.employee-profile-card,
+.details-section-card {
+  border: 1px solid #dce4ef;
+  border-radius: 13px !important;
+  background: #ffffff;
+  box-shadow: 0 4px 18px rgba(16, 28, 61, 0.05) !important;
+}
+
+.employee-profile-card {
+  padding: 28px 24px;
+  text-align: center;
+}
+
+.employee-details-avatar {
+  width: 115px !important;
+  height: 115px !important;
+  margin: 0 auto 17px;
+}
+
+.employee-profile-card h1 {
+  margin: 0;
+  color: #111c39;
+  font-size: 24px;
+  font-weight: 750;
+}
+
+.employee-number {
+  margin: 5px 0 14px !important;
+  color: #687792;
+}
+
+.employee-active-chip {
+  margin-bottom: 22px !important;
+  background: #e4f6e9 !important;
+  color: #168338 !important;
+  font-weight: 650 !important;
+}
+
+.employee-profile-card .MuiDivider-root {
+  margin-bottom: 22px;
+}
+
+.employee-quick-information {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: left;
+}
+
+.information-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+}
+
+.information-row-icon {
+  display: flex;
+  color: #0867df;
+}
+
+.information-row-icon svg {
+  font-size: 22px;
+}
+
+.information-row span,
+.information-field span {
+  display: block;
+  margin-bottom: 4px;
+  color: #74819a;
+  font-size: 12px;
+}
+
+.information-row strong,
+.information-field strong {
+  display: block;
+  color: #17213a;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.employee-details-content {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.details-section-card {
+  padding: 24px;
+}
+
+.details-section-card h2 {
+  margin: 0 0 22px;
+  color: #111c39;
+  font-size: 20px;
+  font-weight: 720;
+}
+
+.information-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.full-information-field {
+  grid-column: 1 / -1;
+}
+
+.information-field {
+  padding: 14px;
+  border: 1px solid #e0e6ef;
+  border-radius: 8px;
+  background: #f9fbfd;
+}
+
+.details-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.details-section-heading h2 {
+  margin-bottom: 4px;
+}
+
+.details-section-heading p {
+  margin: 0;
+  color: #71809a;
+  font-size: 13px;
+}
+
+.details-section-heading .MuiButton-root {
+  border-radius: 8px;
+  text-transform: none;
+  font-weight: 650;
+  box-shadow: none;
+}
+
+.face-registration-status {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+  padding: 16px;
+  border: 1px solid #c6ead1;
+  border-radius: 9px;
+  background: #eefaf2;
+}
+
+.face-status-icon {
+  display: flex;
+  color: #15913a;
+}
+
+.face-status-icon svg {
+  font-size: 34px;
+}
+
+.face-registration-status h3 {
+  margin: 0;
+  color: #137c33;
+  font-size: 16px;
+}
+
+.face-registration-status p {
+  margin: 4px 0 0;
+  color: #4d7159;
+  font-size: 13px;
+}
+
+.face-information-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.attendance-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.attendance-item {
+  padding: 17px;
+  border: 1px solid #dfe6ef;
+  border-radius: 9px;
+  background: #f9fbfd;
+}
+
+.attendance-item > span {
+  display: block;
+  color: #71809a;
+  font-size: 12px;
+}
+
+.attendance-item > strong {
+  display: block;
+  margin: 7px 0 11px;
+  color: #14203b;
+  font-size: 20px;
+}
+
+.attendance-item .MuiChip-root {
+  background: #e4f6e9;
+  color: #168338;
+  font-weight: 650;
+}
+
+@media (max-width: 1000px) {
+  .employee-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .employee-quick-information {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .employee-details-page {
+    padding: 16px;
+  }
+
+  .employee-details-topbar,
+  .details-section-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .information-grid,
+  .face-information-grid,
+  .attendance-summary,
+  .employee-quick-information {
+    grid-template-columns: 1fr;
+  }
+
+  .full-information-field {
+    grid-column: auto;
+  }
+}

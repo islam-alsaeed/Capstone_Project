@@ -1,0 +1,19 @@
+.employees-page {
+  width: 100%;
+  min-height: 100%;
+  padding: 28px;
+  background: #f5f8fc;
+  box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .employees-page {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .employees-page {
+    padding: 14px;
+  }
+}

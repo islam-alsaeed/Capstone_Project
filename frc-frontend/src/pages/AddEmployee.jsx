@@ -253,7 +253,7 @@ function AddEmployee() {
                 name="gender"
                 value={formData.gender}
                 onChange={handleChange}
-                SelectProps={{
+                selectprops={{
                   displayEmpty: true,
                 }}
               >
@@ -275,7 +275,7 @@ function AddEmployee() {
                 onChange={handleChange}
                 error={Boolean(errors.department)}
                 helperText={errors.department}
-                SelectProps={{
+                selectprops={{
                   displayEmpty: true,
                 }}
               >
@@ -347,7 +347,7 @@ function AddEmployee() {
                 name="employeeType"
                 value={formData.employeeType}
                 onChange={handleChange}
-                SelectProps={{
+                selectprops={{
                   displayEmpty: true,
                 }}
               >

@@ -1,0 +1,13 @@
+.employee-search {
+  margin-bottom: 20px !important;
+}
+
+.employee-search .MuiOutlinedInput-root {
+  min-height: 48px;
+  border-radius: 9px;
+  background: #ffffff;
+}
+
+.employee-search .MuiOutlinedInput-notchedOutline {
+  border-color: #d2dce9;
+}

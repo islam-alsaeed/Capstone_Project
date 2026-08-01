@@ -1,9 +1,13 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
   Box,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   MenuItem,
   TextField,
   Typography,
@@ -19,13 +23,11 @@ import {
   ImageOutlined,
   SaveOutlined,
 } from "@mui/icons-material";
-// import CheckCircleOutlneIcon from "@mui/icons-material/CheckCircleOutline";
-
 
 import "./AddEmployee.css";
 
 const initialForm = {
-  employeeId: "",
+  // employeeId: "",
   fullName: "",
   dateOfBirth: "",
   gender: "",
@@ -40,13 +42,47 @@ const initialForm = {
 
 function AddEmployee() {
   const navigate = useNavigate();
+
+  // File upload reference
   const fileInputRef = useRef(null);
 
+  // Webcam references
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const cameraStreamRef = useRef(null);
+
+  // Employee form state
   const [formData, setFormData] = useState(initialForm);
-  const [imagePreview, setImagePreview] = useState("");
-  const [imageDetails, setImageDetails] = useState(null);
   const [errors, setErrors] = useState({});
 
+  // Employee image state
+  const [imagePreview, setImagePreview] = useState("");
+  const [imageDetails, setImageDetails] = useState(null);
+
+  // Camera state
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [cameraActive, setCameraActive] = useState(false);
+  const [cameraError, setCameraError] = useState("");
+
+  // Submission state
+  const [saving, setSaving] = useState(false);
+
+  /**
+   * Stop the camera when the user leaves this page.
+   */
+  useEffect(() => {
+    return () => {
+      stopCamera();
+
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
+
+  /**
+   * Update employee form values.
+   */
   const handleChange = (event) => {
     const { name, value } = event.target;
 
@@ -61,10 +97,16 @@ function AddEmployee() {
     }));
   };
 
+  /**
+   * Open the hidden image file input.
+   */
   const handleUploadClick = () => {
     fileInputRef.current?.click();
   };
 
+  /**
+   * Handle an image selected from the computer.
+   */
   const handleImageChange = (event) => {
     const file = event.target.files?.[0];
 
@@ -72,16 +114,29 @@ function AddEmployee() {
       return;
     }
 
-    if (!file.type.startsWith("image/")) {
-      alert("Please select an image file.");
+    const allowedTypes = ["image/jpeg", "image/png"];
+
+    if (!allowedTypes.includes(file.type)) {
+      alert("Please select a JPG or PNG image.");
+      event.target.value = "";
       return;
     }
 
-    if (file.size > 2 * 1024 * 1024) {
+    const maximumSize = 2 * 1024 * 1024;
+
+    if (file.size > maximumSize) {
       alert("The image must be smaller than 2 MB.");
+      event.target.value = "";
       return;
     }
 
+    createImagePreview(file);
+  };
+
+  /**
+   * Create an image preview and save its file information.
+   */
+  const createImagePreview = (file) => {
     const previewUrl = URL.createObjectURL(file);
 
     setImagePreview((previousPreview) => {
@@ -96,25 +151,161 @@ function AddEmployee() {
       file,
       quality: "Good",
       size: formatFileSize(file.size),
-      format: file.type.split("/")[1]?.toUpperCase() || "IMAGE",
+      format: getImageFormat(file.type),
     });
   };
 
+  /**
+   * Open the browser webcam.
+   */
+  const handleCaptureImage = async () => {
+    setCameraOpen(true);
+    setCameraError("");
+
+    try {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error("Camera access is not supported by this browser.");
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          width: {
+            ideal: 1280,
+          },
+          height: {
+            ideal: 720,
+          },
+          facingMode: "user",
+        },
+        audio: false,
+      });
+
+      cameraStreamRef.current = stream;
+
+      /*
+       * The dialog needs a moment to render the video element.
+       */
+      window.setTimeout(async () => {
+        if (!videoRef.current) {
+          return;
+        }
+
+        videoRef.current.srcObject = stream;
+
+        try {
+          await videoRef.current.play();
+          setCameraActive(true);
+        } catch (error) {
+          console.error("Unable to play camera stream:", error);
+          setCameraError("Unable to start the camera preview.");
+        }
+      }, 100);
+    } catch (error) {
+      console.error("Unable to access camera:", error);
+
+      setCameraError(
+        "Unable to access the camera. Allow camera permission in your browser."
+      );
+    }
+  };
+
+  /**
+   * Stop all active camera tracks.
+   */
+  const stopCamera = () => {
+    if (cameraStreamRef.current) {
+      cameraStreamRef.current
+        .getTracks()
+        .forEach((track) => track.stop());
+
+      cameraStreamRef.current = null;
+    }
+
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+
+    setCameraActive(false);
+  };
+
+  /**
+   * Close the camera dialog.
+   */
+  const closeCamera = () => {
+    stopCamera();
+    setCameraOpen(false);
+    setCameraError("");
+  };
+
+  /**
+   * Capture one webcam frame and convert it to a File.
+   */
+  const captureFace = () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+
+    if (!video || !canvas || !cameraActive) {
+      setCameraError("The camera is not ready.");
+      return;
+    }
+
+    const width = video.videoWidth;
+    const height = video.videoHeight;
+
+    if (!width || !height) {
+      setCameraError("Wait for the camera to finish loading.");
+      return;
+    }
+
+    canvas.width = width;
+    canvas.height = height;
+
+    const context = canvas.getContext("2d");
+
+    if (!context) {
+      setCameraError("Unable to capture the image.");
+      return;
+    }
+
+    /*
+     * Flip the canvas so the captured image matches the
+     * mirrored webcam preview.
+     */
+    context.save();
+    context.translate(width, 0);
+    context.scale(-1, 1);
+    context.drawImage(video, 0, 0, width, height);
+    context.restore();
+
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) {
+          setCameraError("Unable to create the captured image.");
+          return;
+        }
+
+        const filename = `employee-face-${Date.now()}.jpg`;
+
+        const capturedFile = new File([blob], filename, {
+          type: "image/jpeg",
+        });
+
+        createImagePreview(capturedFile);
+        closeCamera();
+      },
+      "image/jpeg",
+      0.92
+    );
+  };
+
+  /**
+   * Validate required employee fields.
+   */
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.employeeId.trim()) {
-      newErrors.employeeId = "Employee ID is required";
-    }
-
     if (!formData.fullName.trim()) {
       newErrors.fullName = "Full name is required";
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Enter a valid email address";
     }
 
     if (!formData.department) {
@@ -125,45 +316,83 @@ function AddEmployee() {
       newErrors.designation = "Designation is required";
     }
 
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Enter a valid email address";
+    }
+
     setErrors(newErrors);
 
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  /**
+   * Submit employee information and face image together.
+   */
+  const handleSubmit = async (event) => {
+    event?.preventDefault();
 
     if (!validateForm()) {
       return;
     }
 
-    const employeePayload = {
-      ...formData,
-      image: imageDetails?.file || null,
-    };
+    if (!imageDetails?.file) {
+      alert("Please capture or upload the employee face image.");
+      return;
+    }
 
-    console.log("Employee submitted:", employeePayload);
+    setSaving(true);
 
-    // Later, replace the console.log with your Flask API call.
-    // Example:
-    //
-    // const requestData = new FormData();
-    // Object.entries(formData).forEach(([key, value]) => {
-    //   requestData.append(key, value);
-    // });
-    //
-    // if (imageDetails?.file) {
-    //   requestData.append("image", imageDetails.file);
-    // }
-    //
-    // await axios.post(
-    //   "http://localhost:5000/api/employees",
-    //   requestData
-    // );
+    try {
+      const requestData = new FormData();
 
-    alert("Employee saved successfully.");
+      Object.entries(formData).forEach(([key, value]) => {
+        requestData.append(key, value);
+      });
+
+      requestData.append("face_image", imageDetails.file);
+
+      /*
+       * Temporary testing.
+       * You can inspect this data in the browser console.
+       */
+      console.log("Employee form:", formData);
+      console.log("Face image:", imageDetails.file);
+
+      /*
+       * Enable this code after your Flask endpoint is ready.
+       *
+       * First install Axios:
+       * npm install axios
+       *
+       * Then import:
+       * import axios from "axios";
+       *
+       * Then use:
+       *
+       * const response = await axios.post(
+       *   "http://localhost:5000/api/employees",
+       *   requestData
+       * );
+       *
+       * console.log(response.data);
+       */
+
+      alert("Employee information and face image are ready to be saved.");
+
+      navigate("/employees");
+    } catch (error) {
+      console.error("Unable to save employee:", error);
+      alert("Unable to save the employee.");
+    } finally {
+      setSaving(false);
+    }
   };
 
+  /**
+   * Clear the complete form and image.
+   */
   const handleClear = () => {
     setFormData(initialForm);
     setErrors({});
@@ -180,11 +409,6 @@ function AddEmployee() {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-  };
-
-  const handleCaptureImage = () => {
-    // This button will later open your webcam component.
-    alert("The camera capture page will be connected in the next step.");
   };
 
   return (
@@ -212,7 +436,7 @@ function AddEmployee() {
           />
 
           <Box className="employee-form-grid">
-            <FormField label="Employee ID" required>
+            {/* <FormField label="Employee ID" required>
               <TextField
                 fullWidth
                 name="employeeId"
@@ -222,7 +446,16 @@ function AddEmployee() {
                 error={Boolean(errors.employeeId)}
                 helperText={errors.employeeId}
               />
-            </FormField>
+            </FormField> */}
+
+            {/* {false&&<FormField label="Employee ID">
+              <TextField
+                fullWidth
+                value="Generated automatically after saving"
+                disabled
+                helperText="Example: EMP2026001"
+              />
+            </FormField>} */}
 
             <FormField label="Full Name" required>
               <TextField
@@ -230,7 +463,7 @@ function AddEmployee() {
                 name="fullName"
                 value={formData.fullName}
                 onChange={handleChange}
-                placeholder="Ayesha Khan"
+                placeholder="John Doe"
                 error={Boolean(errors.fullName)}
                 helperText={errors.fullName}
               />
@@ -260,9 +493,18 @@ function AddEmployee() {
                 <MenuItem value="" disabled>
                   Select gender
                 </MenuItem>
-                <MenuItem value="Male">Male</MenuItem>
-                <MenuItem value="Female">Female</MenuItem>
-                <MenuItem value="Other">Other</MenuItem>
+
+                <MenuItem value="Male">
+                  Male
+                </MenuItem>
+
+                <MenuItem value="Female">
+                  Female
+                </MenuItem>
+
+                <MenuItem value="Other">
+                  Other
+                </MenuItem>
               </TextField>
             </FormField>
 
@@ -282,15 +524,26 @@ function AddEmployee() {
                 <MenuItem value="" disabled>
                   Select department
                 </MenuItem>
+
                 <MenuItem value="Software Development">
                   Software Development
                 </MenuItem>
-                <MenuItem value="IT Support">IT Support</MenuItem>
+
+                <MenuItem value="IT Support">
+                  IT Support
+                </MenuItem>
+
                 <MenuItem value="Human Resources">
                   Human Resources
                 </MenuItem>
-                <MenuItem value="Finance">Finance</MenuItem>
-                <MenuItem value="Security">Security</MenuItem>
+
+                <MenuItem value="Finance">
+                  Finance
+                </MenuItem>
+
+                <MenuItem value="Security">
+                  Security
+                </MenuItem>
               </TextField>
             </FormField>
 
@@ -313,7 +566,7 @@ function AddEmployee() {
                 type="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="ayesha.khan@company.com"
+                placeholder="john.doe@company.com"
                 error={Boolean(errors.email)}
                 helperText={errors.email}
               />
@@ -354,10 +607,22 @@ function AddEmployee() {
                 <MenuItem value="" disabled>
                   Select employee type
                 </MenuItem>
-                <MenuItem value="Full Time">Full Time</MenuItem>
-                <MenuItem value="Part Time">Part Time</MenuItem>
-                <MenuItem value="Contract">Contract</MenuItem>
-                <MenuItem value="Intern">Intern</MenuItem>
+
+                <MenuItem value="Full Time">
+                  Full Time
+                </MenuItem>
+
+                <MenuItem value="Part Time">
+                  Part Time
+                </MenuItem>
+
+                <MenuItem value="Contract">
+                  Contract
+                </MenuItem>
+
+                <MenuItem value="Intern">
+                  Intern
+                </MenuItem>
               </TextField>
             </FormField>
 
@@ -368,7 +633,7 @@ function AddEmployee() {
                   name="address"
                   value={formData.address}
                   onChange={handleChange}
-                  placeholder="123, Green Avenue, Lahore, Pakistan"
+                  placeholder="123, Green Avenue, Cario, Egypt"
                 />
               </FormField>
             </Box>
@@ -381,6 +646,7 @@ function AddEmployee() {
               startIcon={<ClearOutlined />}
               onClick={handleClear}
               className="clear-button"
+              disabled={saving}
             >
               Clear
             </Button>
@@ -390,8 +656,9 @@ function AddEmployee() {
               variant="contained"
               startIcon={<SaveOutlined />}
               className="save-button"
+              disabled={saving}
             >
-              Save Employee
+              {saving ? "Saving..." : "Save Employee"}
             </Button>
           </Box>
         </section>
@@ -404,9 +671,8 @@ function AddEmployee() {
             />
 
             <Box
-              className={`image-capture-area ${
-                imagePreview ? "has-image" : ""
-              }`}
+              className={`image-capture-area ${imagePreview ? "has-image" : ""
+                }`}
             >
               {imagePreview ? (
                 <img
@@ -495,8 +761,8 @@ function AddEmployee() {
                 </Box>
 
                 <Box className="image-success-message">
-                  <CheckCircleOutline />
-                  <span>Image captured successfully</span>
+                  <CheckCircleOutlineOutlined />
+                  <span>Face image captured successfully</span>
                 </Box>
               </>
             ) : (
@@ -521,6 +787,7 @@ function AddEmployee() {
           type="button"
           variant="outlined"
           onClick={() => navigate("/employees")}
+          disabled={saving}
         >
           Cancel
         </Button>
@@ -530,14 +797,141 @@ function AddEmployee() {
           variant="contained"
           startIcon={<SaveOutlined />}
           onClick={handleSubmit}
+          disabled={saving}
         >
-          Save Employee
+          {saving ? "Saving..." : "Save Employee"}
         </Button>
       </Box>
 
       <Typography className="employee-page-footer">
-        © 2026 FRC – Facial recognition control system
+        © 2026 FRC – Facial Recognition Control System
       </Typography>
+
+      {/* Webcam capture dialog */}
+      <Dialog
+        open={cameraOpen}
+        onClose={closeCamera}
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogTitle>
+          Capture Employee Face
+        </DialogTitle>
+
+        <DialogContent>
+          <Box
+            sx={{
+              position: "relative",
+              width: "100%",
+              minHeight: 460,
+              overflow: "hidden",
+              borderRadius: 2,
+              background: "#111827",
+            }}
+          >
+            <video
+              ref={videoRef}
+              playsInline
+              muted
+              style={{
+                display: cameraActive ? "block" : "none",
+                width: "100%",
+                height: "460px",
+                objectFit: "cover",
+                transform: "scaleX(-1)",
+              }}
+            />
+
+            {!cameraActive && (
+              <Box
+                sx={{
+                  minHeight: 460,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 2,
+                  padding: 3,
+                  color: "#ffffff",
+                  textAlign: "center",
+                }}
+              >
+                <CameraAltOutlined
+                  sx={{
+                    fontSize: 70,
+                    color: "#9ca3af",
+                  }}
+                />
+
+                <Typography>
+                  {cameraError || "Starting camera..."}
+                </Typography>
+              </Box>
+            )}
+
+            {cameraActive && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  pointerEvents: "none",
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 240,
+                    height: 320,
+                    border: "3px solid #2196f3",
+                    borderRadius: "50%",
+                    boxShadow:
+                      "0 0 0 9999px rgba(0, 0, 0, 0.18)",
+                  }}
+                />
+              </Box>
+            )}
+          </Box>
+
+          <canvas ref={canvasRef} hidden />
+
+          {cameraError && (
+            <Typography
+              color="error"
+              sx={{
+                mt: 2,
+              }}
+            >
+              {cameraError}
+            </Typography>
+          )}
+        </DialogContent>
+
+        <DialogActions
+          sx={{
+            px: 3,
+            pb: 3,
+          }}
+        >
+          <Button
+            type="button"
+            onClick={closeCamera}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            type="button"
+            variant="contained"
+            startIcon={<CameraAltOutlined />}
+            disabled={!cameraActive}
+            onClick={captureFace}
+          >
+            Capture Face
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
@@ -546,17 +940,29 @@ function SectionTitle({ icon, title }) {
   return (
     <Box className="section-title">
       {icon}
-      <Typography component="h2">{title}</Typography>
+
+      <Typography component="h2">
+        {title}
+      </Typography>
     </Box>
   );
 }
 
-function FormField({ label, required = false, children }) {
+function FormField({
+  label,
+  required = false,
+  children,
+}) {
   return (
     <Box className="form-field">
       <Typography component="label">
         {label}
-        {required && <span className="required-marker"> *</span>}
+
+        {required && (
+          <span className="required-marker">
+            {" "}*
+          </span>
+        )}
       </Typography>
 
       {children}
@@ -564,16 +970,24 @@ function FormField({ label, required = false, children }) {
   );
 }
 
-function PreviewRow({ label, value, success = false }) {
+function PreviewRow({
+  label,
+  value,
+  success = false,
+}) {
   return (
     <Box className="preview-row">
-      <Typography component="span">{label}</Typography>
+      <Typography component="span">
+        {label}
+      </Typography>
 
       <Typography
         component="strong"
-        className={success ? "preview-success-value" : ""}
+        className={
+          success ? "preview-success-value" : ""
+        }
       >
-        {value}
+        {value || "Not available"}
       </Typography>
     </Box>
   );
@@ -589,6 +1003,18 @@ function formatFileSize(bytes) {
   }
 
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function getImageFormat(mimeType) {
+  if (mimeType === "image/jpeg") {
+    return "JPG";
+  }
+
+  if (mimeType === "image/png") {
+    return "PNG";
+  }
+
+  return "IMAGE";
 }
 
 export default AddEmployee;

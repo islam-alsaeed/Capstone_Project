@@ -1,0 +1,340 @@
+.face-registration-page {
+  min-height: 100%;
+  padding: 28px;
+  background: #f5f8fc;
+}
+
+.face-registration-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.face-registration-header h1 {
+  margin: 0;
+  color: #101c3d;
+  font-size: 31px;
+  font-weight: 750;
+}
+
+.face-registration-header p {
+  margin: 7px 0 0;
+  color: #687792;
+  font-size: 15px;
+}
+
+.face-registration-header .MuiButton-root {
+  text-transform: none;
+  font-weight: 650;
+}
+
+.face-registration-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.7fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.camera-card,
+.employee-face-summary,
+.capture-guidelines-card,
+.capture-status-card,
+.face-not-found-card {
+  border: 1px solid #dce4ef;
+  border-radius: 13px !important;
+  background: #ffffff;
+  box-shadow: 0 4px 18px rgba(16, 28, 61, 0.05) !important;
+}
+
+.camera-card {
+  padding: 24px;
+}
+
+.card-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.card-heading > svg {
+  color: #0867df;
+  font-size: 26px;
+}
+
+.card-heading h2,
+.face-side-column h2 {
+  margin: 0;
+  color: #121d39;
+  font-size: 19px;
+  font-weight: 720;
+}
+
+.card-heading p {
+  margin: 4px 0 0;
+  color: #71809a;
+  font-size: 13px;
+}
+
+.camera-frame {
+  position: relative;
+  min-height: 470px;
+  overflow: hidden;
+  border: 1px solid #cfdbea;
+  border-radius: 12px;
+  background: #0e1622;
+}
+
+.camera-video,
+.captured-face-image {
+  width: 100%;
+  height: 470px;
+  object-fit: cover;
+}
+
+.camera-video {
+  display: none;
+  transform: scaleX(-1);
+}
+
+.camera-video.visible {
+  display: block;
+}
+
+.camera-placeholder {
+  display: flex;
+  min-height: 470px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  color: #91a0b6;
+  text-align: center;
+}
+
+.camera-placeholder svg {
+  margin-bottom: 14px;
+  font-size: 70px;
+}
+
+.camera-placeholder h3 {
+  margin: 0;
+  color: #d2d9e4;
+}
+
+.camera-placeholder p {
+  max-width: 340px;
+  margin: 8px 0 0;
+}
+
+.face-guide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.face-guide-oval {
+  width: 245px;
+  height: 320px;
+  border: 3px solid rgba(33, 150, 243, 0.9);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 9999px rgba(0, 0, 0, 0.16),
+    0 0 25px rgba(33, 150, 243, 0.45);
+}
+
+.camera-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.camera-controls .MuiButton-root,
+.face-registration-actions .MuiButton-root {
+  min-height: 44px;
+  border-radius: 8px;
+  text-transform: none;
+  font-weight: 650;
+  box-shadow: none;
+}
+
+.camera-error {
+  margin-top: 12px !important;
+  color: #d32f2f;
+  font-size: 13px !important;
+}
+
+.face-side-column {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.employee-face-summary,
+.capture-guidelines-card,
+.capture-status-card {
+  padding: 22px;
+}
+
+.employee-summary-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 17px;
+}
+
+.employee-summary-photo {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.employee-summary-content h3 {
+  margin: 0;
+  color: #131e3a;
+  font-size: 18px;
+}
+
+.employee-summary-content p {
+  margin: 4px 0;
+  color: #687792;
+}
+
+.employee-summary-content span {
+  color: #0867df;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.guideline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.guideline-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.guideline-item svg {
+  color: #17913a;
+  font-size: 20px;
+}
+
+.guideline-item p {
+  color: #495874;
+  font-size: 14px;
+}
+
+.capture-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 14px;
+  border-radius: 9px;
+}
+
+.capture-status.pending {
+  background: #fff8e6;
+  color: #a46b00;
+}
+
+.capture-status.success {
+  background: #eaf9ef;
+  color: #118336;
+}
+
+.capture-status > svg {
+  margin-top: 1px;
+  font-size: 27px;
+}
+
+.capture-status strong,
+.capture-status span {
+  display: block;
+}
+
+.capture-status strong {
+  font-size: 14px;
+}
+
+.capture-status span {
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.face-registration-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.face-registration-actions .MuiButton-root {
+  min-width: 135px;
+}
+
+.face-not-found-card {
+  max-width: 600px;
+  padding: 30px;
+}
+
+.face-not-found-card p {
+  margin: 10px 0 20px;
+}
+
+@media (max-width: 1050px) {
+  .face-registration-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .face-side-column {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 800px) {
+  .face-registration-page {
+    padding: 16px;
+  }
+
+  .face-registration-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .face-side-column {
+    display: flex;
+  }
+
+  .camera-frame,
+  .camera-video,
+  .captured-face-image,
+  .camera-placeholder {
+    min-height: 360px;
+    height: 360px;
+  }
+
+  .camera-controls,
+  .face-registration-actions {
+    flex-direction: column;
+  }
+
+  .camera-controls .MuiButton-root,
+  .face-registration-actions .MuiButton-root {
+    width: 100%;
+  }
+}

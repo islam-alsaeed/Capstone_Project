@@ -12,6 +12,7 @@ app.register_blueprint(employee_bp, url_prefix="/employee")
 app.register_blueprint(camera_bp, url_prefix="/camera")
 app.register_blueprint(face_bp, url_prefix="/face")
 
+
 @app.get("/")
 def home():
     return redirect("http://localhost:5173/")

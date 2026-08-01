@@ -11,8 +11,8 @@ function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/employees" element={<Employees />} />
-          <Route path="/add-employee" element={<AddEmployee />} />
-          <Route path="*" element={<Dashboard />} />
+          <Route path="/employees/add" element={<AddEmployee />} />
+          {/* <Route path="*" element={<Dashboard />} /> */}
         </Route>
       </Routes>
     </BrowserRouter>

@@ -1,72 +1,102 @@
 import {
-    Dashboard,
-    People,
-    Apartment,
-    AccessTime,
-    Settings,
-    Assessment,
-    Logout
+  DashboardOutlined,
+  PeopleAltOutlined,
+  PersonAddAltOutlined,
+  ApartmentOutlined,
+  AccessTimeOutlined,
+  AssessmentOutlined,
+  SettingsOutlined,
+  LogoutOutlined,
 } from "@mui/icons-material";
+import logo from "../assets/logo.png";
 
 import { NavLink } from "react-router-dom";
-
 import "./Sidebar.css";
 
-function Sidebar(){
+const menuItems = [
+  {
+    label: "Dashboard",
+    path: "/",
+    icon: <DashboardOutlined />,
+  },
+  {
+    label: "Employees",
+    path: "/employees",
+    icon: <PeopleAltOutlined />,
+  },
+  {
+    label: "Add Employee",
+    path: "/employees/add",
+    icon: <PersonAddAltOutlined />,
+  },
+  {
+    label: "Departments",
+    path: "/departments",
+    icon: <ApartmentOutlined />,
+  },
+  {
+    label: "Attendance",
+    path: "/attendance",
+    icon: <AccessTimeOutlined />,
+  },
+  {
+    label: "Reports",
+    path: "/reports",
+    icon: <AssessmentOutlined />,
+  },
+  {
+    label: "Settings",
+    path: "/settings",
+    icon: <SettingsOutlined />,
+  },
+];
 
-    return(
+function Sidebar() {
+  return (
+    <aside className="app-sidebar">
+      <div className="sidebar-content">
+        <div className="sidebar-brand">
+          <div className="sidebar-logo">
+            {/* Replace this path with your actual logo */}
+            <img src={logo} alt="FRC logo" />
+          </div>
 
-        <div className="sidebar">
+          <h2>FRC</h2>
 
-            <div className="logo">
-                <img src="../assets/logo.png" alt="logo"/>
-
-                <h2>FRC</h2>
-
-                <p>Facial Recognition Control System</p>
-
-            </div>
-
-            <nav>
-
-                <NavLink to="/">
-                    <Dashboard/> Dashboard
-                </NavLink>
-
-                <NavLink to="/employees">
-                    <People/> Employees
-                </NavLink>
-
-                <NavLink to="/departments">
-                    <Apartment/> Departments
-                </NavLink>
-
-                <NavLink to="/attendance">
-                    <AccessTime/> Attendance
-                </NavLink>
-
-                <NavLink to="/reports">
-                    <Assessment/> Reports
-                </NavLink>
-
-                <NavLink to="/settings">
-                    <Settings/> Settings
-                </NavLink>
-
-            </nav>
-
-            <div className="logout">
-
-                <Logout/>
-
-                Logout
-
-            </div>
-
+          <p>
+            Facial Recognition Control
+            <br />
+            System
+          </p>
         </div>
 
-    )
+        <nav className="sidebar-navigation">
+          {menuItems.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              end={item.path === "/"}
+              className={({ isActive }) =>
+                `sidebar-menu-item ${isActive ? "active" : ""}`
+              }
+            >
+              <span className="sidebar-menu-icon">{item.icon}</span>
+              <span className="sidebar-menu-label">{item.label}</span>
+            </NavLink>
+          ))}
+        </nav>
+      </div>
 
+      <button
+        type="button"
+        className="sidebar-logout"
+        onClick={() => console.log("Logout clicked")}
+      >
+        <LogoutOutlined />
+        <span>Logout</span>
+      </button>
+    </aside>
+  );
 }
 
 export default Sidebar;

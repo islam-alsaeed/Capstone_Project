@@ -24,17 +24,57 @@ import CheckCircleOutlineOutlined from "@mui/icons-material/CheckCircleOutlineOu
 import WorkOutlineOutlined from "@mui/icons-material/WorkOutlineOutlined";
 
 import "./EmployeeDetails.css";
-import employees from "../data/employees";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 function EmployeeDetails() {
   const navigate = useNavigate();
   const { employeeId } = useParams();
 
-  const employee = employees.find(
-    (item) => item.id === employeeId
-  );
+  const [employee, setEmployee] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  if (!employee) {
+  useEffect(() => {
+    const loadEmployee = async () => {
+      setLoading(true);
+      setError("");
+
+      try {
+        const response = await axios.get(
+          `http://127.0.0.1:5000/api/employees/${employeeId}`
+        );
+
+        setEmployee(response.data.employee);
+      } catch (requestError) {
+        console.error(
+          "Unable to load employee:",
+          requestError.response?.data || requestError
+        );
+
+        setError(
+          requestError.response?.data?.message ||
+          "Unable to load employee."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadEmployee();
+  }, [employeeId]);
+  if (loading) {
+    return (
+      <Box className="employee-details-page">
+        <Paper sx={{ p: 4, borderRadius: 3 }}>
+          <Typography variant="h5">
+            Loading employee...
+          </Typography>
+        </Paper>
+      </Box>
+    );
+  }
+  if (error || !employee) {
     return (
       <Box className="employee-details-page">
         <Paper sx={{ p: 4, borderRadius: 3 }}>
@@ -43,7 +83,7 @@ function EmployeeDetails() {
           </Typography>
 
           <Typography sx={{ mt: 1 }}>
-            No employee exists with ID: {employeeId}
+            {error || `No employee exists with ID: ${employeeId}`}
           </Typography>
 
           <Button
@@ -72,7 +112,7 @@ function EmployeeDetails() {
           variant="contained"
           startIcon={<EditOutlined />}
           onClick={() =>
-            navigate(`/employees/${employee.id}/edit`)
+            navigate(`/employees/${employee.employeeCode}/edit`)
           }
         >
           Edit Employee
@@ -82,17 +122,17 @@ function EmployeeDetails() {
       <Box className="employee-details-grid">
         <Paper className="employee-profile-card">
           <Avatar
-            src={employee.photo}
-            alt={employee.name}
+            src={employee.imagePath}
+            alt={employee.fullName}
             className="employee-details-avatar"
           />
 
           <Typography component="h1">
-            {employee.name}
+            {employee.fullName}
           </Typography>
 
           <Typography className="employee-number">
-            {employee.id}
+            {employee.employeeCode}
           </Typography>
 
           <Chip
@@ -142,12 +182,12 @@ function EmployeeDetails() {
             <Box className="information-grid">
               <InformationField
                 label="Employee ID"
-                value={employee.id}
+                value={employee.employeeCode}
               />
 
               <InformationField
                 label="Full Name"
-                value={employee.name}
+                value={employee.fullName}
               />
 
               <InformationField
@@ -196,7 +236,7 @@ function EmployeeDetails() {
                 startIcon={<CameraAltOutlined />}
                 onClick={() =>
                   navigate(
-                    `/employees/${employee.id}/face-registration`
+                    `/employees/${employee.employeeCode}/face-registration`
                   )
                 }
               >
@@ -260,7 +300,7 @@ function EmployeeDetails() {
                 startIcon={<AccessTimeOutlined />}
                 onClick={() =>
                   navigate(
-                    `/attendance?employee=${employee.id}`
+                    `/attendance?employee=${employee.employeeCode}`
                   )
                 }
               >

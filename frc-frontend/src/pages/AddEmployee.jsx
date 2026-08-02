@@ -25,6 +25,7 @@ import {
 } from "@mui/icons-material";
 
 import "./AddEmployee.css";
+import axios from "axios";
 
 const initialForm = {
   // employeeId: "",
@@ -351,40 +352,35 @@ function AddEmployee() {
         requestData.append(key, value);
       });
 
-      requestData.append("face_image", imageDetails.file);
+      requestData.append(
+        "face_image",
+        imageDetails.file
+      );
 
-      /*
-       * Temporary testing.
-       * You can inspect this data in the browser console.
-       */
-      console.log("Employee form:", formData);
-      console.log("Face image:", imageDetails.file);
+      const response = await axios.post(
+        "http://127.0.0.1:5000/api/employees",
+        requestData
+      );
 
-      /*
-       * Enable this code after your Flask endpoint is ready.
-       *
-       * First install Axios:
-       * npm install axios
-       *
-       * Then import:
-       * import axios from "axios";
-       *
-       * Then use:
-       *
-       * const response = await axios.post(
-       *   "http://localhost:5000/api/employees",
-       *   requestData
-       * );
-       *
-       * console.log(response.data);
-       */
+      const createdEmployee = response.data.employee;
 
-      alert("Employee information and face image are ready to be saved.");
+      alert(
+        `Employee created successfully: ${createdEmployee.employeeCode}`
+      );
 
-      navigate("/employees");
+      navigate(
+        `/employees/${createdEmployee.employeeCode}`
+      );
     } catch (error) {
-      console.error("Unable to save employee:", error);
-      alert("Unable to save the employee.");
+      console.error(
+        "Unable to save employee:",
+        error.response?.data || error
+      );
+
+      alert(
+        error.response?.data?.message ||
+        "Unable to save the employee."
+      );
     } finally {
       setSaving(false);
     }

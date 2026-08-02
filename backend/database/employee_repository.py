@@ -1,13 +1,7 @@
 from datetime import date
 from typing import Any
-
-from psycopg.rows import dict_row
-
 from database.database_connection import create_connection
 from psycopg.rows import dict_row
-
-from database.database_connection import create_connection
-
 
 def get_employee_by_code(employee_code: str):
     connection = create_connection()
@@ -53,6 +47,51 @@ def get_employee_by_code(employee_code: str):
 def generate_employee_code(employee_id: int) -> str:
     current_year = date.today().year
     return f"EMP{current_year}{employee_id:04d}"
+
+from psycopg.rows import dict_row
+
+from database.database_connection import create_connection
+
+
+def get_all_employees() -> list[dict]:
+    connection = create_connection()
+
+    if connection is None:
+        raise RuntimeError("Unable to connect to PostgreSQL.")
+
+    try:
+        with connection.cursor(row_factory=dict_row) as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    id,
+                    employee_code,
+                    full_name,
+                    date_of_birth,
+                    gender,
+                    department,
+                    designation,
+                    email,
+                    phone,
+                    joining_date,
+                    employee_type,
+                    address,
+                    status,
+                    image_path,
+                    face_registered,
+                    created_at,
+                    updated_at
+                FROM employees
+                ORDER BY id DESC
+                """
+            )
+
+            employees = cursor.fetchall()
+
+            return [dict(employee) for employee in employees]
+
+    finally:
+        connection.close()
 
 
 def create_employee(

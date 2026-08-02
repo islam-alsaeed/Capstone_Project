@@ -1,6 +1,9 @@
 from pathlib import Path
-
-from flask import Flask, jsonify
+from flask import (
+    Flask,
+    jsonify,
+    send_from_directory,
+)
 from flask_cors import CORS
 
 from routes import employees_bp
@@ -35,6 +38,13 @@ def create_app() -> Flask:
     )
 
     app.register_blueprint(employees_bp)
+
+    @app.get("/uploads/employee_faces/<path:filename>")
+    def serve_employee_face(filename: str):
+        return send_from_directory(
+            app.config["UPLOAD_FOLDER"],
+            filename,
+        )
 
     @app.get("/api/health")
     def health_check():

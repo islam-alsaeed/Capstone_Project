@@ -10,6 +10,7 @@ from werkzeug.utils import secure_filename
 
 from database.employee_repository import (
     create_employee,
+    get_all_employees,
     get_employee_by_code,
 )
 
@@ -102,6 +103,13 @@ def employee_to_json(employee: dict[str, Any]) -> dict[str, Any]:
         "address": employee["address"],
         "status": employee["status"],
         "imagePath": employee["image_path"],
+        "imageUrl": (
+            "http://127.0.0.1:5000/uploads/"
+            "employee_faces/"
+            f"{Path(employee['image_path']).name}"
+            if employee["image_path"]
+            else None
+        ),
         "faceRegistered": employee["face_registered"],
         "createdAt": (
             employee["created_at"].isoformat()
@@ -110,6 +118,28 @@ def employee_to_json(employee: dict[str, Any]) -> dict[str, Any]:
         ),
     }
 
+@employees_bp.get("")
+def list_employees():
+    try:
+        employees = get_all_employees()
+
+        return jsonify({
+            "employees": [
+                employee_to_json(employee)
+                for employee in employees
+            ],
+            "total": len(employees),
+        }), 200
+
+    except Exception as error:
+        current_app.logger.exception(
+            "Unable to retrieve employees."
+        )
+
+        return jsonify({
+            "message": "Unable to retrieve employees.",
+            "error": str(error),
+        }), 500
 
 @employees_bp.post("")
 def add_employee():

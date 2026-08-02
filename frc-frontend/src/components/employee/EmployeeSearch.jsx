@@ -7,15 +7,15 @@ import SearchIcon from "@mui/icons-material/Search";
 
 import "./EmployeeSearch.css";
 
-function EmployeeSearch({ value = "", onChange }) {
+function EmployeeSearch({ value, onChange }) {
   return (
     <TextField
       fullWidth
       value={value}
       onChange={onChange}
-      placeholder="Search employee..."
+      placeholder="Search employees..."
       className="employee-search"
-      inputprops={{
+      InputProps={{
         startAdornment: (
           <InputAdornment position="start">
             <SearchIcon />

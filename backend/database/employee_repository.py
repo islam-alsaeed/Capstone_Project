@@ -2,7 +2,7 @@ from datetime import date
 from typing import Any
 from psycopg.rows import dict_row
 from database.database_connection import create_connection
-from psycopg.rows import dict_row
+
 
 def get_employee_by_code(employee_code: str):
     connection = create_connection()
@@ -49,6 +49,90 @@ def generate_employee_code(employee_id: int) -> str:
     current_year = date.today().year
     return f"EMP{current_year}{employee_id:04d}"
 
+def update_employee_by_code(
+    employee_code: str,
+    employee_data: dict[str, Any],
+) -> dict[str, Any] | None:
+    connection = create_connection()
+
+    if connection is None:
+        raise RuntimeError("Unable to connect to PostgreSQL.")
+
+    try:
+        with connection.cursor(row_factory=dict_row) as cursor:
+            cursor.execute(
+                """
+                UPDATE employees
+                SET
+                    full_name = %(full_name)s,
+                    date_of_birth = %(date_of_birth)s,
+                    gender = %(gender)s,
+                    department = %(department)s,
+                    designation = %(designation)s,
+                    email = %(email)s,
+                    phone = %(phone)s,
+                    joining_date = %(joining_date)s,
+                    employee_type = %(employee_type)s,
+                    address = %(address)s,
+                    status = %(status)s,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE employee_code = %(employee_code)s
+                RETURNING
+                    id,
+                    employee_code,
+                    full_name,
+                    date_of_birth,
+                    gender,
+                    department,
+                    designation,
+                    email,
+                    phone,
+                    joining_date,
+                    employee_type,
+                    address,
+                    status,
+                    image_path,
+                    face_registered,
+                    created_at,
+                    updated_at
+                """,
+                {
+                    "employee_code": employee_code,
+                    "full_name": employee_data["full_name"],
+                    "date_of_birth": employee_data.get(
+                        "date_of_birth"
+                    ),
+                    "gender": employee_data.get("gender"),
+                    "department": employee_data["department"],
+                    "designation": employee_data["designation"],
+                    "email": employee_data["email"].lower(),
+                    "phone": employee_data.get("phone"),
+                    "joining_date": employee_data.get(
+                        "joining_date"
+                    ),
+                    "employee_type": employee_data.get(
+                        "employee_type"
+                    ),
+                    "address": employee_data.get("address"),
+                    "status": employee_data.get(
+                        "status",
+                        "Active",
+                    ),
+                },
+            )
+
+            employee = cursor.fetchone()
+
+        connection.commit()
+
+        return dict(employee) if employee else None
+
+    except Exception:
+        connection.rollback()
+        raise
+
+    finally:
+        connection.close()
 
 def get_all_employees() -> list[dict]:
     connection = create_connection()

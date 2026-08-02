@@ -5,7 +5,7 @@ import Employees from "./pages/Employees.jsx";
 import AddEmployee from "./pages/AddEmployee.jsx";
 import EmployeeDetails from "./pages/EmployeeDetails.jsx";
 import FaceRegistration from "./pages/FaceRegistration";
-
+import EditEmployee from "./pages/EditEmployee";
 function App() {
   return (
     <BrowserRouter>
@@ -19,6 +19,10 @@ function App() {
             element={<FaceRegistration />}
           />
           <Route path="/employees/:employeeId" element={<EmployeeDetails />} />
+          <Route
+            path="/employees/:employeeId/edit"
+            element={<EditEmployee />}
+          />
 
           {/* <Route path="*" element={<Dashboard />} /> */}
         </Route>

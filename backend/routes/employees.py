@@ -13,6 +13,7 @@ from database.employee_repository import (
     delete_employee_by_code,
     get_all_employees,
     get_employee_by_code,
+    update_employee_by_code,
 )
 
 
@@ -261,7 +262,112 @@ def add_employee():
             "error": str(error),
         }), 500
 
+@employees_bp.put("/<string:employee_code>")
+def update_employee(employee_code: str):
+    try:
+        request_data = request.get_json(silent=True)
 
+        if not request_data:
+            return jsonify({
+                "message": "JSON request data is required."
+            }), 400
+
+        full_name = str(
+            request_data.get("fullName", "")
+        ).strip()
+
+        department = str(
+            request_data.get("department", "")
+        ).strip()
+
+        designation = str(
+            request_data.get("designation", "")
+        ).strip()
+
+        email = str(
+            request_data.get("email", "")
+        ).strip().lower()
+
+        missing_fields = []
+
+        if not full_name:
+            missing_fields.append("fullName")
+
+        if not department:
+            missing_fields.append("department")
+
+        if not designation:
+            missing_fields.append("designation")
+
+        if not email:
+            missing_fields.append("email")
+
+        if missing_fields:
+            return jsonify({
+                "message": "Required fields are missing.",
+                "fields": missing_fields,
+            }), 400
+
+        employee_data = {
+            "full_name": full_name,
+            "date_of_birth": parse_optional_date(
+                request_data.get("dateOfBirth")
+            ),
+            "gender": request_data.get("gender") or None,
+            "department": department,
+            "designation": designation,
+            "email": email,
+            "phone": request_data.get("phone") or None,
+            "joining_date": parse_optional_date(
+                request_data.get("joiningDate")
+            ),
+            "employee_type": (
+                request_data.get("employeeType") or None
+            ),
+            "address": request_data.get("address") or None,
+            "status": request_data.get("status") or "Active",
+        }
+
+        employee = update_employee_by_code(
+            employee_code=employee_code,
+            employee_data=employee_data,
+        )
+
+        if employee is None:
+            return jsonify({
+                "message": (
+                    f"No employee exists with code "
+                    f"{employee_code}."
+                )
+            }), 404
+
+        return jsonify({
+            "message": "Employee updated successfully.",
+            "employee": employee_to_json(employee),
+        }), 200
+
+    except ValueError as error:
+        return jsonify({
+            "message": str(error),
+        }), 400
+
+    except errors.UniqueViolation:
+        return jsonify({
+            "message": (
+                "Another employee already uses this email address."
+            ),
+        }), 409
+
+    except Exception as error:
+        current_app.logger.exception(
+            "Unable to update employee."
+        )
+
+        return jsonify({
+            "message": "Unable to update employee.",
+            "error": str(error),
+        }), 500
+    
 @employees_bp.get("/<string:employee_code>")
 def get_employee(employee_code: str):
     try:

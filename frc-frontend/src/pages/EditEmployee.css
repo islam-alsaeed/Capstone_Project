@@ -1,0 +1,141 @@
+.edit-employee-page {
+  min-height: 100%;
+  padding: 28px;
+  background: #f5f8fc;
+}
+
+.edit-employee-loading {
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-employee-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.edit-employee-header h1 {
+  margin: 0;
+  color: #101c3d;
+  font-size: 31px;
+  font-weight: 750;
+}
+
+.edit-employee-header p {
+  margin: 7px 0 0;
+  color: #687792;
+}
+
+.edit-employee-header .MuiButton-root {
+  text-transform: none;
+  font-weight: 650;
+}
+
+.edit-employee-card,
+.edit-error-card {
+  padding: 25px;
+  border: 1px solid #dce4ef;
+  border-radius: 13px !important;
+  box-shadow: 0 4px 18px rgba(16, 28, 61, 0.05) !important;
+}
+
+.edit-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.edit-form-field {
+  min-width: 0;
+}
+
+.edit-form-field > label {
+  display: block;
+  margin-bottom: 9px;
+  color: #131c34;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.edit-required-marker {
+  color: #d32f2f;
+}
+
+.edit-form-field .MuiOutlinedInput-root {
+  min-height: 49px;
+  border-radius: 8px;
+}
+
+.edit-form-field .MuiOutlinedInput-notchedOutline {
+  border-color: #cdd9e8;
+}
+
+.edit-form-field
+  .MuiOutlinedInput-root.Mui-focused
+  .MuiOutlinedInput-notchedOutline {
+  border-color: #0867df;
+}
+
+.edit-full-width {
+  grid-column: 1 / -1;
+}
+
+.edit-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 13px;
+  margin-top: 30px;
+}
+
+.edit-form-actions .MuiButton-root {
+  min-height: 46px;
+  padding: 9px 22px;
+  border-radius: 8px;
+  text-transform: none;
+  font-weight: 650;
+  box-shadow: none;
+}
+
+.edit-error-card {
+  max-width: 650px;
+}
+
+.edit-error-card h1 {
+  margin-bottom: 10px;
+}
+
+.edit-error-card p {
+  margin-bottom: 22px;
+}
+
+@media (max-width: 750px) {
+  .edit-employee-page {
+    padding: 16px;
+  }
+
+  .edit-employee-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .edit-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .edit-full-width {
+    grid-column: auto;
+  }
+
+  .edit-form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .edit-form-actions .MuiButton-root {
+    width: 100%;
+  }
+}

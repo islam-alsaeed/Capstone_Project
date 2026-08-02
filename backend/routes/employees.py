@@ -10,6 +10,7 @@ from werkzeug.utils import secure_filename
 
 from database.employee_repository import (
     create_employee,
+    delete_employee_by_code,
     get_all_employees,
     get_employee_by_code,
 )
@@ -285,5 +286,41 @@ def get_employee(employee_code: str):
 
         return jsonify({
             "message": "Unable to retrieve employee.",
+            "error": str(error),
+        }), 500
+
+@employees_bp.delete("/<string:employee_code>")
+def delete_employee(employee_code: str):
+    try:
+        employee = delete_employee_by_code(employee_code)
+
+        if employee is None:
+            return jsonify({
+                "message": (
+                    f"No employee exists with code "
+                    f"{employee_code}."
+                )
+            }), 404
+
+        image_path = employee.get("image_path")
+
+        if image_path:
+            Path(image_path).unlink(missing_ok=True)
+
+        return jsonify({
+            "message": "Employee deleted successfully.",
+            "employee": {
+                "employeeCode": employee["employee_code"],
+                "fullName": employee["full_name"],
+            },
+        }), 200
+
+    except Exception as error:
+        current_app.logger.exception(
+            "Unable to delete employee."
+        )
+
+        return jsonify({
+            "message": "Unable to delete employee.",
             "error": str(error),
         }), 500

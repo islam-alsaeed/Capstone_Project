@@ -1,5 +1,6 @@
 from datetime import date
 from typing import Any
+from psycopg.rows import dict_row
 from database.database_connection import create_connection
 from psycopg.rows import dict_row
 
@@ -48,10 +49,6 @@ def generate_employee_code(employee_id: int) -> str:
     current_year = date.today().year
     return f"EMP{current_year}{employee_id:04d}"
 
-from psycopg.rows import dict_row
-
-from database.database_connection import create_connection
-
 
 def get_all_employees() -> list[dict]:
     connection = create_connection()
@@ -93,7 +90,45 @@ def get_all_employees() -> list[dict]:
     finally:
         connection.close()
 
+def delete_employee_by_code(employee_code: str) -> dict | None:
+    connection = create_connection()
 
+    if connection is None:
+        raise RuntimeError("Unable to connect to PostgreSQL.")
+
+    try:
+        with connection.cursor(row_factory=dict_row) as cursor:
+            cursor.execute(
+                """
+                DELETE FROM employees
+                WHERE employee_code = %s
+                RETURNING
+                    id,
+                    employee_code,
+                    full_name,
+                    image_path
+                """,
+                (employee_code,),
+            )
+
+            deleted_employee = cursor.fetchone()
+
+        connection.commit()
+
+        return (
+            dict(deleted_employee)
+            if deleted_employee
+            else None
+        )
+
+    except Exception:
+        connection.rollback()
+        raise
+
+    finally:
+        connection.close()
+
+        
 def create_employee(
     employee_data: dict[str, Any],
     image_path: str | None = None,

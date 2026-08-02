@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -40,20 +41,32 @@ function EmployeeRow({
     event.stopPropagation();
 
     const confirmed = window.confirm(
-      `Delete ${employee.fullName}?`
+      `Are you sure you want to delete ${employee.fullName}?`
     );
 
     if (!confirmed) {
       return;
     }
 
-    // The DELETE backend endpoint will be added next.
-    console.log(
-      "Delete employee:",
-      employee.employeeCode
-    );
+    try {
+      await axios.delete(
+        `http://127.0.0.1:5000/api/employees/${employee.employeeCode}`
+      );
 
-    onEmployeeDeleted?.();
+      alert("Employee deleted successfully.");
+
+      onEmployeeDeleted?.();
+    } catch (error) {
+      console.error(
+        "Unable to delete employee:",
+        error.response?.data || error
+      );
+
+      alert(
+        error.response?.data?.message ||
+          "Unable to delete the employee."
+      );
+    }
   };
 
   return (
@@ -68,7 +81,7 @@ function EmployeeRow({
 
       <TableCell>
         <Avatar
-          src={employee.imageUrl || employee.imagePath}
+          src={employee.imageUrl}
           alt={employee.fullName}
         />
       </TableCell>

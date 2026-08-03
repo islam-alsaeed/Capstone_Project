@@ -29,11 +29,11 @@ const menuItems = [
     path: "/employees/add",
     icon: <PersonAddAltOutlined />,
   },
-  {
-    label: "Departments",
-    path: "/departments",
-    icon: <ApartmentOutlined />,
-  },
+  // {
+  //   label: "Departments",
+  //   path: "/departments",
+  //   icon: <ApartmentOutlined />,
+  // },
   {
     label: "Attendance",
     path: "/attendance",
@@ -44,11 +44,11 @@ const menuItems = [
     path: "/reports",
     icon: <AssessmentOutlined />,
   },
-  {
-    label: "Settings",
-    path: "/settings",
-    icon: <SettingsOutlined />,
-  },
+  // {
+  //   label: "Settings",
+  //   path: "/settings",
+  //   icon: <SettingsOutlined />,
+  // },
 ];
 
 function Sidebar() {
@@ -64,9 +64,8 @@ function Sidebar() {
           <h2>FRC</h2>
 
           <p>
-            Facial Recognition Control
-            <br />
-            System
+            FaceClock Facial Recognition Control System
+            {/* <br /> */}
           </p>
         </div>
 

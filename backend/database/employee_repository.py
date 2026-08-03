@@ -254,7 +254,7 @@ def create_employee(
                     %(address)s,
                     %(status)s,
                     %(image_path)s,
-                    FALSE
+                    %(face_registered)s
                 )
                 RETURNING id
                 """,

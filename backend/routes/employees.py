@@ -80,42 +80,62 @@ def save_face_image(face_image: FileStorage) -> str:
 
 
 def employee_to_json(employee: dict[str, Any]) -> dict[str, Any]:
-    """Convert the database employee row into React-friendly JSON."""
+    image_path = employee.get("image_path")
+
+    image_url = None
+
+    if image_path:
+        image_url = (
+            "http://127.0.0.1:5000/"
+            "uploads/employee_faces/"
+            f"{Path(image_path).name}"
+        )
+
+    date_of_birth = employee.get("date_of_birth")
+    joining_date = employee.get("joining_date")
+    created_at = employee.get("created_at")
+    updated_at = employee.get("updated_at")
 
     return {
-        "id": employee["id"],
-        "employeeCode": employee["employee_code"],
-        "fullName": employee["full_name"],
+        "id": employee.get("id"),
+        "employeeCode": employee.get("employee_code"),
+        "fullName": employee.get("full_name"),
         "dateOfBirth": (
-            employee["date_of_birth"].isoformat()
-            if employee["date_of_birth"]
+            date_of_birth.isoformat()
+            if date_of_birth
             else None
         ),
-        "gender": employee["gender"],
-        "department": employee["department"],
-        "designation": employee["designation"],
-        "email": employee["email"],
-        "phone": employee["phone"],
+        "gender": employee.get("gender"),
+        "department": employee.get("department"),
+        "designation": employee.get("designation"),
+        "email": employee.get("email"),
+        "phone": employee.get("phone"),
         "joiningDate": (
-            employee["joining_date"].isoformat()
-            if employee["joining_date"]
+            joining_date.isoformat()
+            if joining_date
             else None
         ),
-        "employeeType": employee["employee_type"],
-        "address": employee["address"],
-        "status": employee["status"],
-        "imagePath": employee["image_path"],
-        "imageUrl": (
-            "http://127.0.0.1:5000/uploads/"
-            "employee_faces/"
-            f"{Path(employee['image_path']).name}"
-            if employee["image_path"]
+        "employeeType": employee.get("employee_type"),
+        "address": employee.get("address"),
+        "status": employee.get("status", "Active"),
+        "imagePath": image_path,
+        "imageUrl": image_url,
+        "faceRegistered": bool(
+            employee.get("face_registered", False)
+        ),
+        "faceRegisteredDate": (
+            updated_at.isoformat()
+            if employee.get("face_registered") and updated_at
             else None
         ),
-        "faceRegistered": employee["face_registered"],
         "createdAt": (
-            employee["created_at"].isoformat()
-            if employee.get("created_at")
+            created_at.isoformat()
+            if created_at
+            else None
+        ),
+        "updatedAt": (
+            updated_at.isoformat()
+            if updated_at
             else None
         ),
     }

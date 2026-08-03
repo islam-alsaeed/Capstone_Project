@@ -15,7 +15,7 @@ function EmployeeSearch({ value, onChange }) {
       onChange={onChange}
       placeholder="Search employees..."
       className="employee-search"
-      InputProps={{
+      inputprops={{
         startAdornment: (
           <InputAdornment position="start">
             <SearchIcon />

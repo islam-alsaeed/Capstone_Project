@@ -1,5 +1,10 @@
 import { useNavigate, useParams } from "react-router-dom";
+import CheckCircleOutlineOutlined from "@mui/icons-material/CheckCircleOutlineOutlined";
+import WorkOutlineOutlined from "@mui/icons-material/WorkOutlineOutlined";
 
+import "./EmployeeDetails.css";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import {
   Avatar,
   Box,
@@ -20,12 +25,7 @@ import {
   PhoneOutlined,
 } from "@mui/icons-material";
 
-import CheckCircleOutlineOutlined from "@mui/icons-material/CheckCircleOutlineOutlined";
-import WorkOutlineOutlined from "@mui/icons-material/WorkOutlineOutlined";
 
-import "./EmployeeDetails.css";
-import { useEffect, useState } from "react";
-import axios from "axios";
 
 function EmployeeDetails() {
   const navigate = useNavigate();
@@ -34,18 +34,25 @@ function EmployeeDetails() {
   const [employee, setEmployee] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     const loadEmployee = async () => {
       setLoading(true);
       setError("");
+      setImageError(false);
 
       try {
         const response = await axios.get(
           `http://127.0.0.1:5000/api/employees/${employeeId}`
         );
 
-        setEmployee(response.data.employee);
+        const loadedEmployee = response.data.employee;
+
+        console.log("Loaded employee:", loadedEmployee);
+        console.log("Image URL:", loadedEmployee.imageUrl);
+
+        setEmployee(loadedEmployee);
       } catch (requestError) {
         console.error(
           "Unable to load employee:",
@@ -63,6 +70,7 @@ function EmployeeDetails() {
 
     loadEmployee();
   }, [employeeId]);
+
   if (loading) {
     return (
       <Box className="employee-details-page">
@@ -122,11 +130,33 @@ function EmployeeDetails() {
       <Box className="employee-details-grid">
         <Paper className="employee-profile-card">
           <Avatar
-            src={employee.imagePath}
+            src={
+              !imageError && employee.imageUrl
+                ? employee.imageUrl
+                : undefined
+            }
             alt={employee.fullName}
             className="employee-details-avatar"
-          />
+            slotProps={{
+              img: {
+                onError: () => {
+                  console.error(
+                    "Employee image failed to load:",
+                    employee.imageUrl
+                  );
 
+                  setImageError(true);
+                },
+              },
+            }}
+          >
+            {employee.fullName
+              ?.split(" ")
+              .map((part) => part[0])
+              .join("")
+              .slice(0, 2)
+              .toUpperCase()}
+          </Avatar>
           <Typography component="h1">
             {employee.fullName}
           </Typography>
@@ -246,9 +276,16 @@ function EmployeeDetails() {
               </Button>
             </Box>
 
-            <Box className="face-registration-status">
+            <Box
+              className={`face-registration-status ${employee.faceRegistered ? "registered" : "not-registered"
+                }`}
+            >
               <Box className="face-status-icon">
-                <CheckCircleOutlineOutlined />
+                {employee.faceRegistered ? (
+                  <CheckCircleOutlineOutlined />
+                ) : (
+                  <CameraAltOutlined />
+                )}
               </Box>
 
               <Box>
@@ -258,10 +295,13 @@ function EmployeeDetails() {
                     : "Face Not Registered"}
                 </Typography>
 
-                <Typography component="p">
-                  Registration date:{" "}
-                  {employee.faceRegisteredDate || "Not available"}
-                </Typography>
+                {/* <Typography component="p">
+                  {employee.faceRegistered
+                    ? employee.faceRegisteredDate
+                      ? `Registration date: ${employee.faceRegisteredDate}`
+                      : "A face image is available for this employee."
+                    : "Capture and process a face image to complete registration."}
+                </Typography> */}
               </Box>
             </Box>
 

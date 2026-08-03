@@ -2,7 +2,7 @@ from datetime import date
 from typing import Any
 from psycopg.rows import dict_row
 from database.database_connection import create_connection
-
+import json
 
 def get_employee_by_code(employee_code: str):
     connection = create_connection()
@@ -212,6 +212,77 @@ def delete_employee_by_code(employee_code: str) -> dict | None:
     finally:
         connection.close()
 
+def save_face_embedding(
+    employee_id: int,
+    embedding: list[float],
+      # I tried using Facenet but I will swith to ArcFace because it is more accurate and faster.
+       # Options: VGG-Face, Facenet, OpenFace, DeepFace, DeepID, Dlib, ArcFace
+    model_name: str = "ArcFace",
+) -> dict[str, Any]:
+    connection = create_connection()
+
+    if connection is None:
+        raise RuntimeError("Unable to connect to PostgreSQL.")
+
+    try:
+        with connection.cursor(row_factory=dict_row) as cursor:
+            cursor.execute(
+                """
+                INSERT INTO face_embeddings (
+                    employee_id,
+                    embedding,
+                    model_name
+                )
+                VALUES (
+                    %s,
+                    %s::jsonb,
+                    %s
+                )
+                ON CONFLICT (employee_id)
+                DO UPDATE SET
+                    embedding = EXCLUDED.embedding,
+                    model_name = EXCLUDED.model_name,
+                    updated_at = CURRENT_TIMESTAMP
+                RETURNING
+                    id,
+                    employee_id,
+                    model_name,
+                    created_at,
+                    updated_at
+                """,
+                (
+                    employee_id,
+                    json.dumps(embedding),
+                    model_name,
+                ),
+            )
+
+            saved_embedding = cursor.fetchone()
+
+            cursor.execute(
+                """
+                UPDATE employees
+                SET
+                    face_registered = TRUE,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = %s
+                """,
+                (employee_id,),
+            )
+
+        connection.commit()
+
+        if saved_embedding is None:
+            raise RuntimeError("Face embedding was not saved.")
+
+        return dict(saved_embedding)
+
+    except Exception:
+        connection.rollback()
+        raise
+
+    finally:
+        connection.close()
         
 def create_employee(
     employee_data: dict[str, Any],
@@ -271,6 +342,9 @@ def create_employee(
                     "address": employee_data.get("address"),
                     "status": employee_data.get("status", "Active"),
                     "image_path": image_path,
+
+                    # Keep false until DeepFace successfully saves the embedding.
+                    "face_registered": False,
                 },
             )
 

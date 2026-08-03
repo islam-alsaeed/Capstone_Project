@@ -8,11 +8,13 @@ from psycopg import errors
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
+from services.face_service import generate_face_embedding 
 from database.employee_repository import (
     create_employee,
     delete_employee_by_code,
     get_all_employees,
     get_employee_by_code,
+    save_face_embedding,
     update_employee_by_code,
 )
 
@@ -243,6 +245,17 @@ def add_employee():
         employee = create_employee(
             employee_data=employee_data,
             image_path=image_path,
+        )
+        embedding = generate_face_embedding(image_path)
+
+        save_face_embedding(
+            employee_id=employee["id"],
+            embedding=embedding,
+            model_name="Facenet",
+        )
+
+        employee = get_employee_by_code(
+            employee["employee_code"]
         )
 
         return jsonify({

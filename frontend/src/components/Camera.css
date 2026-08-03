@@ -1,12 +1,23 @@
-.video-container {
-    overflow: hidden;
-    width: 650px;
-    height: 450px;
-    border-radius: 20px;
-    margin-bottom: 25px;
+.camera-box {
+  width: 100%;
+  max-width: 500px;
+  height: 320px;
+  background-color: #000; /* black box like your screenshot */
+  border-radius: 12px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
-.camera-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+
+.camera-placeholder {
+  color: #ccc;
+  font-size: 18px;
+}
+
+.camera-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }

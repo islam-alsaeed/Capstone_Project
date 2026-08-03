@@ -1,13 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-// import Dashboard from "./pages/Dashboard";
-// import AddEmployee from "./pages/AddEmployee";
-// import Camera from "./pages/Camera";
-// import Recognition from "./pages/Recognition";
-// import Employees from "./pages/Employees";
 import Home from "./pages/Home";
-// import Login from "./components/Login";
 import Login from "./pages/LoginPage";
-
+import AdminPage from "./pages/AdminPage";
+import RegisterUserPage from "./pages/RegisterUser";
 
 function App() {
   return (
@@ -15,8 +10,11 @@ function App() {
       <Routes>
         {
           <>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/register" element={<RegisterUserPage />} />
+            {/* <Route path="/dashboard" element={<Dashboard />} /> */}
           </>
           /* <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/add-employee" element={<AddEmployee />} />

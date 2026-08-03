@@ -22,5 +22,5 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src", "../frc-frontend/src/pages/Dashboard.jsx", "../frc-frontend/src/pages/AddEmployee.jsx", "../frc-frontend/src/pages/Employees.jsx", "../frc-frontend/src/components/employee/EmployeeRow.jsx", "../frc-frontend/src/components/employee/EmployeeTable.jsx", "../frc-frontend/src/components/Layout.jsx", "../frc-frontend/src/components/Sidebar.jsx", "../frc-frontend/src/components/Topbar.jsx"]
 }

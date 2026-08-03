@@ -1,0 +1,78 @@
+# -------------------------
+# Python / Flask
+# -------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+instance/
+venv/
+env/
+ENV/
+*.sqlite3
+
+# Flask environment files
+.env
+.env.*
+.enve/
+*.env.local
+
+# Flask cache / temp
+.cache/
+.tmp/
+*.log
+
+# -------------------------
+# Node / React (Vite)
+# -------------------------
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+
+# Local environment files
+*.env.development
+*.env.production
+*.env.test
+
+# Vite cache
+.vite/
+vite.config.ts.timestamp*
+
+# -------------------------
+# OS / Editor junk
+# -------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# -------------------------
+# PostgreSQL / Database
+# -------------------------
+pgdata/
+*.sql
+*.dump
+*.backup
+
+# -------------------------
+# Face Recognition / Media
+# -------------------------
+captures/
+photos/
+uploads/
+temp/
+*.jpg
+*.jpeg
+*.png
+*.mp4
+
+# -------------------------
+# Misc
+# -------------------------
+*.bak
+*.old
+*.orig

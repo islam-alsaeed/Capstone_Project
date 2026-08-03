@@ -1,12 +1,18 @@
+import os
+from datetime import timedelta
 from pathlib import Path
-from flask import (
-    Flask,
-    jsonify,
-    send_from_directory,
-)
-from flask_cors import CORS
 
-from routes import employees_bp
+from dotenv import load_dotenv
+from flask import Flask, jsonify, send_from_directory
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager
+
+from routes import auth_bp, employees_bp
+
+
+load_dotenv()
+
+jwt = JWTManager()
 
 
 def create_app() -> Flask:
@@ -14,13 +20,25 @@ def create_app() -> Flask:
 
     backend_folder = Path(__file__).resolve().parent
 
+    jwt_secret = os.getenv("JWT_SECRET_KEY")
+
+    if not jwt_secret:
+        raise RuntimeError(
+            "JWT_SECRET_KEY is missing from the .env file."
+        )
+
+    app.config["JWT_SECRET_KEY"] = jwt_secret
+
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(
+        hours=1
+    )
+
     app.config["UPLOAD_FOLDER"] = (
         backend_folder
         / "uploads"
         / "employee_faces"
     )
 
-    # Maximum complete request size: 3 MB.
     app.config["MAX_CONTENT_LENGTH"] = (
         3 * 1024 * 1024
     )
@@ -37,6 +55,9 @@ def create_app() -> Flask:
         },
     )
 
+    jwt.init_app(app)
+
+    app.register_blueprint(auth_bp)
     app.register_blueprint(employees_bp)
 
     @app.get("/uploads/employee_faces/<path:filename>")

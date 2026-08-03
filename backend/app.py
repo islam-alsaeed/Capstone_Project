@@ -7,7 +7,11 @@ from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 
-from routes import auth_bp, employees_bp
+from routes import (
+    attendance_bp,
+    auth_bp,
+    employees_bp,
+)
 
 
 load_dotenv()
@@ -31,6 +35,12 @@ def create_app() -> Flask:
 
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(
         hours=1
+    )
+
+    app.config["ATTENDANCE_TEMP_FOLDER"] = (
+    backend_folder
+    / "uploads"
+    / "attendance_temp"
     )
 
     app.config["UPLOAD_FOLDER"] = (
@@ -59,6 +69,7 @@ def create_app() -> Flask:
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(employees_bp)
+    app.register_blueprint(attendance_bp)
 
     @app.get("/uploads/employee_faces/<path:filename>")
     def serve_employee_face(filename: str):

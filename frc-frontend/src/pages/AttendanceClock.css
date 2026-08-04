@@ -1,0 +1,333 @@
+.attendance-clock-page {
+  min-height: 100vh;
+  padding: 28px;
+  background: #f4f7fb;
+}
+
+.attendance-clock-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.attendance-clock-header h1 {
+  margin: 0;
+  color: #13203d;
+  font-size: 31px;
+  font-weight: 750;
+}
+
+.attendance-clock-header p {
+  margin: 7px 0 0;
+  color: #71809a;
+}
+
+.attendance-clock-header .MuiButton-root {
+  text-transform: none;
+  font-weight: 650;
+}
+
+.attendance-clock-grid {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.35fr)
+    minmax(330px, 0.65fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.attendance-camera-card,
+.attendance-action-card {
+  padding: 24px;
+  border: 1px solid #dce5ef;
+  border-radius: 14px !important;
+  background: #ffffff;
+  box-shadow:
+    0 5px 20px rgba(19, 32, 61, 0.05) !important;
+}
+
+.attendance-card-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.attendance-card-heading > svg {
+  color: #0867df;
+  font-size: 29px;
+}
+
+.attendance-card-heading h2 {
+  margin: 0;
+  color: #17213d;
+  font-size: 20px;
+  font-weight: 720;
+}
+
+.attendance-card-heading p {
+  margin: 4px 0 0;
+  color: #71809a;
+  font-size: 13px;
+}
+
+.attendance-camera-frame {
+  position: relative;
+  height: 500px;
+  overflow: hidden;
+  border: 1px solid #ced9e8;
+  border-radius: 12px;
+  background: #101720;
+}
+
+.attendance-video,
+.attendance-captured-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.attendance-video {
+  display: none;
+  transform: scaleX(-1);
+}
+
+.attendance-video.active {
+  display: block;
+}
+
+.attendance-camera-placeholder {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #9ba9ba;
+  text-align: center;
+}
+
+.attendance-camera-placeholder > svg {
+  margin-bottom: 14px;
+  font-size: 78px;
+}
+
+.attendance-camera-placeholder h3 {
+  margin: 0;
+  color: #d8e0ea;
+}
+
+.attendance-camera-placeholder p {
+  margin: 8px 0 0;
+}
+
+.attendance-face-guide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.attendance-face-oval {
+  width: 245px;
+  height: 325px;
+  border: 3px solid #2196f3;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 9999px rgba(0, 0, 0, 0.16),
+    0 0 30px rgba(33, 150, 243, 0.45);
+}
+
+.attendance-processing {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: rgba(8, 16, 28, 0.8);
+  color: #ffffff;
+}
+
+.attendance-camera-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.attendance-camera-buttons .MuiButton-root {
+  min-height: 44px;
+  text-transform: none;
+  font-weight: 650;
+  box-shadow: none;
+}
+
+.attendance-action-list {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.attendance-action {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 14px;
+  border: 1px solid #dce4ee;
+  border-radius: 10px;
+  background: #ffffff;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.attendance-action:hover {
+  border-color: #8ab8ee;
+  background: #f6faff;
+  transform: translateY(-1px);
+}
+
+.attendance-action.selected {
+  border-color: #0867df;
+  background: #eaf3ff;
+}
+
+.attendance-action-icon {
+  width: 43px;
+  height: 43px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: #eaf3ff;
+  color: #0867df;
+}
+
+.attendance-action-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.attendance-action-text strong {
+  color: #17213d;
+  font-size: 14px;
+}
+
+.attendance-action-text small {
+  margin-top: 4px;
+  color: #71809a;
+  font-size: 12px;
+}
+
+.attendance-submit-button {
+  min-height: 48px !important;
+  margin-top: 20px !important;
+  text-transform: none !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+}
+
+.attendance-instruction {
+  margin-top: 10px !important;
+  color: #71809a;
+  text-align: center;
+  font-size: 12px !important;
+}
+
+.attendance-success-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px;
+  text-align: center;
+}
+
+.attendance-success-result > svg {
+  color: #219653;
+  font-size: 80px;
+}
+
+.attendance-success-result h3 {
+  margin: 16px 0 5px;
+  color: #17213d;
+  font-size: 23px;
+}
+
+.attendance-success-result > p {
+  margin: 0;
+  color: #219653;
+}
+
+.attendance-success-details {
+  width: 100%;
+  margin-top: 25px;
+  overflow: hidden;
+  border: 1px solid #dfe6ef;
+  border-radius: 9px;
+  background: #f9fbfd;
+}
+
+.attendance-result-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 13px 15px;
+  border-bottom: 1px solid #e3e9f0;
+}
+
+.attendance-result-row:last-child {
+  border-bottom: none;
+}
+
+.attendance-result-row span {
+  color: #71809a;
+  font-size: 13px;
+}
+
+.attendance-result-row strong {
+  color: #17213d;
+  text-align: right;
+  font-size: 13px;
+}
+
+@media (max-width: 1050px) {
+  .attendance-clock-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .attendance-clock-page {
+    padding: 16px;
+  }
+
+  .attendance-clock-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .attendance-camera-frame {
+    height: 390px;
+  }
+
+  .attendance-camera-buttons {
+    flex-direction: column;
+  }
+
+  .attendance-camera-buttons
+    .MuiButton-root {
+    width: 100%;
+  }
+}

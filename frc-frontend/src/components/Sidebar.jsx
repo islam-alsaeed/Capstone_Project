@@ -1,22 +1,29 @@
 import {
-  DashboardOutlined,
-  PeopleAltOutlined,
-  PersonAddAltOutlined,
-  ApartmentOutlined,
   AccessTimeOutlined,
   AssessmentOutlined,
-  SettingsOutlined,
+  DashboardOutlined,
+  EventNoteOutlined,
   LogoutOutlined,
+  PeopleAltOutlined,
+  PersonAddAltOutlined,
+  PersonOutlineOutlined,
 } from "@mui/icons-material";
+
+import {
+  NavLink,
+  useNavigate,
+} from "react-router-dom";
+
 import logo from "../assets/logo.png";
 
-import { NavLink } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
+
 import "./Sidebar.css";
 
-const menuItems = [
+const adminMenuItems = [
   {
     label: "Dashboard",
-    path: "/",
+    path: "/dashboard",
     icon: <DashboardOutlined />,
   },
   {
@@ -29,11 +36,6 @@ const menuItems = [
     path: "/employees/add",
     icon: <PersonAddAltOutlined />,
   },
-  // {
-  //   label: "Departments",
-  //   path: "/departments",
-  //   icon: <ApartmentOutlined />,
-  // },
   {
     label: "Attendance",
     path: "/attendance",
@@ -44,28 +46,66 @@ const menuItems = [
     path: "/reports",
     icon: <AssessmentOutlined />,
   },
-  // {
-  //   label: "Settings",
-  //   path: "/settings",
-  //   icon: <SettingsOutlined />,
-  // },
+];
+
+const employeeMenuItems = [
+  {
+    label: "Dashboard",
+    path: "/employee/dashboard",
+    icon: <DashboardOutlined />,
+  },
+  {
+    label: "Attendance Clock",
+    path: "/employee/clock",
+    icon: <AccessTimeOutlined />,
+  },
+  {
+    label: "My Attendance",
+    path: "/employee/attendance",
+    icon: <EventNoteOutlined />,
+  },
+  {
+    label: "My Profile",
+    path: "/employee/profile",
+    icon: <PersonOutlineOutlined />,
+  },
 ];
 
 function Sidebar() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const isEmployee = user?.role === "EMPLOYEE";
+
+  const menuItems = isEmployee
+    ? employeeMenuItems
+    : adminMenuItems;
+
+  const handleLogout = () => {
+    logout();
+
+    navigate("/login", {
+      replace: true,
+    });
+  };
+
   return (
     <aside className="app-sidebar">
       <div className="sidebar-content">
         <div className="sidebar-brand">
           <div className="sidebar-logo">
-            {/* Replace this path with your actual logo */}
-            <img src={logo} alt="FRC logo" />
+            <img
+              src={logo}
+              alt="FRC logo"
+            />
           </div>
 
           <h2>FRC</h2>
 
           <p>
-            FaceClock Facial Recognition Control System
-            {/* <br /> */}
+            {isEmployee
+              ? "FaceClock Employee Portal"
+              : "FaceClock Facial Recognition Control System"}
           </p>
         </div>
 
@@ -74,13 +114,23 @@ function Sidebar() {
             <NavLink
               key={item.path}
               to={item.path}
-              end={item.path === "/"}
+              end={
+                item.path === "/dashboard" ||
+                item.path === "/employee/dashboard"
+              }
               className={({ isActive }) =>
-                `sidebar-menu-item ${isActive ? "active" : ""}`
+                `sidebar-menu-item ${
+                  isActive ? "active" : ""
+                }`
               }
             >
-              <span className="sidebar-menu-icon">{item.icon}</span>
-              <span className="sidebar-menu-label">{item.label}</span>
+              <span className="sidebar-menu-icon">
+                {item.icon}
+              </span>
+
+              <span className="sidebar-menu-label">
+                {item.label}
+              </span>
             </NavLink>
           ))}
         </nav>
@@ -89,7 +139,7 @@ function Sidebar() {
       <button
         type="button"
         className="sidebar-logout"
-        onClick={() => console.log("Logout clicked")}
+        onClick={handleLogout}
       >
         <LogoutOutlined />
         <span>Logout</span>

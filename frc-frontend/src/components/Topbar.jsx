@@ -1,4 +1,8 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import {
   Menu,
@@ -11,10 +15,15 @@ import {
   IconButton,
 } from "@mui/material";
 
+import { useAuth } from "../auth/AuthContext";
+
 import "./Topbar.css";
 
 function Topbar() {
-  const [currentDateTime, setCurrentDateTime] = useState(new Date());
+  const { user } = useAuth();
+
+  const [currentDateTime, setCurrentDateTime] =
+    useState(new Date());
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -26,21 +35,44 @@ function Topbar() {
     };
   }, []);
 
-  const day = currentDateTime.toLocaleDateString("en-US", {
-    weekday: "long",
-  });
+  const day = currentDateTime.toLocaleDateString(
+    "en-US",
+    {
+      weekday: "long",
+    }
+  );
 
-  const date = currentDateTime.toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
+  const date = currentDateTime.toLocaleDateString(
+    "en-US",
+    {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    }
+  );
 
-  const time = currentDateTime.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-  });
+  const time = currentDateTime.toLocaleTimeString(
+    "en-US",
+    {
+      hour: "numeric",
+      minute: "2-digit",
+      second: "2-digit",
+    }
+  );
+
+  const initials = useMemo(() => {
+    const fullName = user?.fullName || "User";
+
+    return fullName
+      .split(" ")
+      .filter(Boolean)
+      .map((part) => part[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+  }, [user?.fullName]);
+
+  const roleLabel = getRoleLabel(user?.role);
 
   return (
     <header className="topbar">
@@ -73,16 +105,38 @@ function Topbar() {
         </IconButton>
 
         <Avatar className="admin-avatar">
-          AU
+          {initials}
         </Avatar>
 
         <div className="profile-information">
-          <strong>Admin User</strong>
-          <p>System Administrator</p>
+          <strong>
+            {user?.fullName || "User"}
+          </strong>
+
+          <p>{roleLabel}</p>
         </div>
       </div>
     </header>
   );
+}
+
+function getRoleLabel(role) {
+  switch (role) {
+    case "ADMIN":
+      return "System Administrator";
+
+    case "HR":
+      return "Human Resources";
+
+    case "MANAGER":
+      return "Manager";
+
+    case "EMPLOYEE":
+      return "Employee";
+
+    default:
+      return "System User";
+  }
 }
 
 export default Topbar;

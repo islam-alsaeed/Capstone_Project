@@ -4,7 +4,10 @@ import {
   Routes,
 } from "react-router-dom";
 
+import ProtectedRoute from "./auth/ProtectedRoute";
+
 import Layout from "./components/Layout";
+// import EmployeeSidebar from "./components/EmployeeSidebar";
 
 import Dashboard from "./pages/Dashboard";
 import Employees from "./pages/Employees";
@@ -14,15 +17,14 @@ import FaceRegistration from "./pages/FaceRegistration";
 import EditEmployee from "./pages/EditEmployee";
 
 import Login from "./pages/Login";
-import EmployeeDashboard from "./pages/EmployeeDashboard";
 import Unauthorized from "./pages/Unauthorized";
-
-import ProtectedRoute from "./auth/ProtectedRoute";
+import EmployeeDashboard from "./pages/EmployeeDashboard";
+import AttendanceClock from "./pages/AttendanceClock";
 
 function App() {
   return (
     <Routes>
-      {/* Public routes */}
+      {/* Public pages */}
       <Route
         path="/login"
         element={<Login />}
@@ -33,7 +35,7 @@ function App() {
         element={<Unauthorized />}
       />
 
-      {/* Employee routes */}
+      {/* Employee portal */}
       <Route
         element={
           <ProtectedRoute
@@ -41,13 +43,20 @@ function App() {
           />
         }
       >
-        <Route
-          path="/employee/dashboard"
-          element={<EmployeeDashboard />}
-        />
+        <Route element={<Layout />}>
+          <Route
+            path="/employee/dashboard"
+            element={<EmployeeDashboard />}
+          />
+
+          <Route
+            path="/employee/clock"
+            element={<AttendanceClock />}
+          />
+        </Route>
       </Route>
 
-      {/* Admin, HR, and manager routes */}
+      {/* Admin, HR, and manager portal */}
       <Route
         element={
           <ProtectedRoute
@@ -92,7 +101,6 @@ function App() {
         </Route>
       </Route>
 
-      {/* Default route */}
       <Route
         path="/"
         element={
@@ -103,7 +111,6 @@ function App() {
         }
       />
 
-      {/* Unknown routes */}
       <Route
         path="*"
         element={

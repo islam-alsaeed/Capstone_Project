@@ -8,7 +8,7 @@ import ProtectedRoute from "./auth/ProtectedRoute";
 
 import Layout from "./components/Layout";
 // import EmployeeSidebar from "./components/EmployeeSidebar";
-
+import MyAttendance from "./pages/MyAttendance";
 import Dashboard from "./pages/Dashboard";
 import Employees from "./pages/Employees";
 import AddEmployee from "./pages/AddEmployee";
@@ -68,6 +68,10 @@ function App() {
           />
         }
       >
+        <Route
+          path="/employee/attendance"
+          element={<MyAttendance />}
+        />
         <Route element={<Layout />}>
           <Route
             path="/dashboard"

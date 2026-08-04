@@ -1,13 +1,13 @@
 import {
-  Box,
-  CircularProgress,
-} from "@mui/material";
-
-import {
   Navigate,
   Outlet,
   useLocation,
 } from "react-router-dom";
+
+import {
+  Box,
+  CircularProgress,
+} from "@mui/material";
 
 import { useAuth } from "./AuthContext";
 
@@ -28,8 +28,9 @@ function ProtectedRoute({
         sx={{
           minHeight: "100vh",
           display: "flex",
-          justifyContent: "center",
           alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#f5f8fc",
         }}
       >
         <CircularProgress />
@@ -37,21 +38,38 @@ function ProtectedRoute({
     );
   }
 
-  if (!isAuthenticated) {
+  if (
+    !isAuthenticated ||
+    !user
+  ) {
     return (
       <Navigate
         to="/login"
         replace
         state={{
-          from: location,
+          from:
+            location.pathname,
         }}
       />
     );
   }
 
+  const normalizedRole =
+    String(
+      user.role || ""
+    ).toUpperCase();
+
+  const normalizedAllowedRoles =
+    allowedRoles.map((role) =>
+      String(role).toUpperCase()
+    );
+
   if (
-    allowedRoles.length > 0 &&
-    !allowedRoles.includes(user.role)
+    normalizedAllowedRoles.length >
+      0 &&
+    !normalizedAllowedRoles.includes(
+      normalizedRole
+    )
   ) {
     return (
       <Navigate

@@ -1,8 +1,7 @@
 from typing import Any
-
 from psycopg.rows import dict_row
-
 from database.database_connection import create_connection
+from datetime import date
 
 
 def get_latest_attendance_event(
@@ -73,6 +72,55 @@ def get_today_attendance_events(
                 ORDER BY event_time ASC, id ASC
                 """,
                 (employee_id,),
+            )
+
+            return [
+                dict(row)
+                for row in cursor.fetchall()
+            ]
+
+    finally:
+        connection.close()
+
+def get_attendance_events_by_date_range(
+    employee_id: int,
+    start_date: date,
+    end_date: date,
+) -> list[dict[str, Any]]:
+    connection = create_connection()
+
+    if connection is None:
+        raise RuntimeError(
+            "Unable to connect to PostgreSQL."
+        )
+
+    try:
+        with connection.cursor(
+            row_factory=dict_row
+        ) as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    id,
+                    employee_id,
+                    event_type,
+                    event_time,
+                    verification_method,
+                    face_distance
+                FROM attendance_events
+                WHERE
+                    employee_id = %s
+                    AND event_time::date
+                        BETWEEN %s AND %s
+                ORDER BY
+                    event_time ASC,
+                    id ASC
+                """,
+                (
+                    employee_id,
+                    start_date,
+                    end_date,
+                ),
             )
 
             return [

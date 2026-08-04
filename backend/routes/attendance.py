@@ -45,12 +45,12 @@ attendance_bp = Blueprint(
 
 
 ALLOWED_EVENT_TYPES = {
-    "CHECK_IN",
+    "CLOCKED_IN",
     "BREAK_START",
     "BREAK_END",
     "LUNCH_START",
     "LUNCH_END",
-    "CHECK_OUT",
+    "CLOCKED_OUT",
 }
 
 FACE_THRESHOLD = 0.40
@@ -129,20 +129,20 @@ def get_my_attendance_status():
             else None
         )
 
-        check_in_event = next(
+        clock_in_event = next(
             (
                 event
                 for event in events
-                if event["event_type"] == "CHECK_IN"
+                if event["event_type"] == "CLOCKED_IN"
             ),
             None,
         )
 
-        check_out_event = next(
+        clock_out_event = next(
             (
                 event
                 for event in reversed(events)
-                if event["event_type"] == "CHECK_OUT"
+                if event["event_type"] == "CLOCKED_OUT"
             ),
             None,
         )
@@ -157,13 +157,13 @@ def get_my_attendance_status():
                     latest_event_type
                 ),
             "checkInTime": (
-                check_in_event["event_time"].isoformat()
-                if check_in_event
+                clock_in_event["event_time"].isoformat()
+                if clock_in_event
                 else None
             ),
             "checkOutTime": (
-                check_out_event["event_time"].isoformat()
-                if check_out_event
+                clock_out_event["event_time"].isoformat()
+                if clock_out_event
                 else None
             ),
             "events": [

@@ -36,7 +36,7 @@ import "./AttendanceClock.css";
 
 const ATTENDANCE_ACTIONS = [
   {
-    eventType: "CHECK_IN",
+    eventType: "CLOCKED_IN",
     label: "Clock In",
     description: "Start your workday",
     icon: <LoginOutlined />,
@@ -66,7 +66,7 @@ const ATTENDANCE_ACTIONS = [
     icon: <FastfoodOutlined />,
   },
   {
-    eventType: "CHECK_OUT",
+    eventType: "CLOCKED_OUT",
     label: "Clock Out",
     description: "End your workday",
     icon: <LogoutOutlined />,
@@ -576,12 +576,12 @@ function AttendanceClock() {
               {statusLoading
                 ? "Loading..."
                 : attendanceStatus?.status ||
-                  "Not Checked In"}
+                  "Not Clocked In"}
             </strong>
 
-            {attendanceStatus?.checkInTime && (
+            {attendanceStatus?.clockedInTime && (
               <>
-                {" — Checked in at "}
+                {" — Clocked in at "}
                 {formatTime(
                   attendanceStatus.checkInTime
                 )}
@@ -797,12 +797,12 @@ function formatTime(value) {
 
 function formatEventLabel(eventType) {
   const labels = {
-    CHECK_IN: "Clock In",
+    CLOCKED_IN: "Clock In",
     BREAK_START: "Start Break",
     BREAK_END: "End Break",
     LUNCH_START: "Start Lunch",
     LUNCH_END: "End Lunch",
-    CHECK_OUT: "Clock Out",
+    CLOCKED_OUT: "Clock Out",
   };
 
   return labels[eventType] ||
@@ -811,7 +811,7 @@ function formatEventLabel(eventType) {
 
 function getStatusSeverity(latestEventType) {
   switch (latestEventType) {
-    case "CHECK_IN":
+    case "CLOCKED_IN":
     case "BREAK_END":
     case "LUNCH_END":
       return "success";
@@ -820,7 +820,7 @@ function getStatusSeverity(latestEventType) {
     case "LUNCH_START":
       return "warning";
 
-    case "CHECK_OUT":
+    case "CLOCKED_OUT":
       return "info";
 
     default:
@@ -832,17 +832,17 @@ function getDisabledActionMessage(
   eventType,
   latestEventType
 ) {
-  if (latestEventType === "CHECK_OUT") {
+  if (latestEventType === "CLOCKED_OUT") {
     return "Workday already completed";
   }
 
   const messages = {
-    CHECK_IN: "Available before starting work",
+    CLOCKED_IN: "Available before starting work",
     BREAK_START: "Available while working",
     BREAK_END: "Available while on break",
     LUNCH_START: "Available while working",
     LUNCH_END: "Available while at lunch",
-    CHECK_OUT: "Available while working",
+    CLOCKED_OUT: "Available while working",
   };
 
   return (

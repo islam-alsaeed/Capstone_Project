@@ -1,11 +1,11 @@
 ALLOWED_TRANSITIONS = {
     None: {
-        "CHECK_IN",
+        "CLOCKED_IN",
     },
-    "CHECK_IN": {
+    "CLOCKED_IN": {
         "BREAK_START",
         "LUNCH_START",
-        "CHECK_OUT",
+        "CLOCKED_OUT",
     },
     "BREAK_START": {
         "BREAK_END",
@@ -13,27 +13,27 @@ ALLOWED_TRANSITIONS = {
     "BREAK_END": {
         "BREAK_START",
         "LUNCH_START",
-        "CHECK_OUT",
+        "CLOCKED_OUT",
     },
     "LUNCH_START": {
         "LUNCH_END",
     },
     "LUNCH_END": {
         "BREAK_START",
-        "CHECK_OUT",
+        "CLOCKED_OUT",
     },
-    "CHECK_OUT": set(),
+    "CLOCKED_OUT": set(),
 }
 
 
 STATUS_LABELS = {
-    None: "Not Checked In",
-    "CHECK_IN": "Working",
+    None: "Not Clocked In",
+    "CLOCKED_IN": "Clocked In",
     "BREAK_START": "On Break",
-    "BREAK_END": "Working",
+    "BREAK_END": "Clocked In",
     "LUNCH_START": "At Lunch",
-    "LUNCH_END": "Working",
-    "CHECK_OUT": "Checked Out",
+    "LUNCH_END": "Clocked In",
+    "CLOCKED_OUT": "Clocked Out",
 }
 
 

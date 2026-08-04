@@ -101,7 +101,7 @@ function EmployeeDashboard() {
           <BadgeOutlined />
 
           <Box>
-            <span>Employee Code</span>
+            <span>Employee ID</span>
 
             <strong>
               {user?.employeeCode ||
@@ -121,7 +121,7 @@ function EmployeeDashboard() {
             ) : (
               <strong>
                 {attendanceStatus?.status ||
-                  "Not Checked In"}
+                  "Not Clocked In"}
               </strong>
             )}
           </Box>
@@ -156,24 +156,24 @@ function EmployeeDashboard() {
             Clock in, start or end a break, record lunch, and clock out using face verification.
           </Typography>
 
-          {attendanceStatus?.checkInTime && (
+          {attendanceStatus?.clockedInTime && (
             <Typography
               component="p"
               className="employee-attendance-time"
             >
-              Checked in at{" "}
+              Clocked in at{" "}
               {formatTime(
                 attendanceStatus.checkInTime
               )}
             </Typography>
           )}
 
-          {attendanceStatus?.checkOutTime && (
+          {attendanceStatus?.clockedOutTime && (
             <Typography
               component="p"
               className="employee-attendance-time"
             >
-              Checked out at{" "}
+              Clocked out at{" "}
               {formatTime(
                 attendanceStatus.checkOutTime
               )}

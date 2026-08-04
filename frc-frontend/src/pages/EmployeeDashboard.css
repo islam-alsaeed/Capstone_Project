@@ -126,6 +126,13 @@
   border-bottom: 1px solid #e4eaf1;
 }
 
+.employee-attendance-time {
+  margin: -10px 0 16px !important;
+  color: #0867df !important;
+  font-size: 14px !important;
+  font-weight: 650 !important;
+}
+
 .employee-profile-row:last-child {
   border-bottom: none;
 }

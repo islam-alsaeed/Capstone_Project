@@ -32,8 +32,7 @@
 .attendance-clock-grid {
   display: grid;
   grid-template-columns:
-    minmax(0, 1.35fr)
-    minmax(330px, 0.65fr);
+    minmax(0, 1.35fr) minmax(330px, 0.65fr);
   gap: 22px;
   align-items: start;
 }
@@ -55,7 +54,7 @@
   margin-bottom: 20px;
 }
 
-.attendance-card-heading > svg {
+.attendance-card-heading>svg {
   color: #0867df;
   font-size: 29px;
 }
@@ -108,7 +107,7 @@
   text-align: center;
 }
 
-.attendance-camera-placeholder > svg {
+.attendance-camera-placeholder>svg {
   margin-bottom: 14px;
   font-size: 78px;
 }
@@ -254,7 +253,7 @@
   text-align: center;
 }
 
-.attendance-success-result > svg {
+.attendance-success-result>svg {
   color: #219653;
   font-size: 80px;
 }
@@ -265,7 +264,7 @@
   font-size: 23px;
 }
 
-.attendance-success-result > p {
+.attendance-success-result>p {
   margin: 0;
   color: #219653;
 }
@@ -326,8 +325,30 @@
     flex-direction: column;
   }
 
-  .attendance-camera-buttons
-    .MuiButton-root {
+  .attendance-camera-buttons .MuiButton-root {
     width: 100%;
   }
+}
+
+.attendance-action:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  background: #f3f5f8;
+  transform: none;
+}
+
+.attendance-action:disabled:hover {
+  border-color: #dce4ee;
+  background: #f3f5f8;
+  transform: none;
+}
+
+.attendance-action:disabled .attendance-action-icon {
+  background: #e4e8ed;
+  color: #8c98a8;
+}
+
+.attendance-action:disabled .attendance-action-text strong,
+.attendance-action:disabled .attendance-action-text small {
+  color: #8c98a8;
 }

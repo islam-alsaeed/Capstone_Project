@@ -6,15 +6,23 @@ import {
 } from "@mui/icons-material";
 
 import {
+  Alert,
   Box,
   Button,
   Chip,
+  CircularProgress,
   Paper,
   Typography,
 } from "@mui/material";
 
+import {
+  useEffect,
+  useState,
+} from "react";
+
 import { useNavigate } from "react-router-dom";
 
+import apiClient from "../api/apiClient";
 import { useAuth } from "../auth/AuthContext";
 
 import "./EmployeeDashboard.css";
@@ -23,16 +31,51 @@ function EmployeeDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  const [attendanceStatus, setAttendanceStatus] =
+    useState(null);
+
+  const [statusLoading, setStatusLoading] =
+    useState(true);
+
+  const [statusError, setStatusError] =
+    useState("");
+
+  useEffect(() => {
+    const loadAttendanceStatus = async () => {
+      setStatusLoading(true);
+      setStatusError("");
+
+      try {
+        const response = await apiClient.get(
+          "/attendance/my-status"
+        );
+
+        setAttendanceStatus(response.data);
+      } catch (error) {
+        setStatusError(
+          error.response?.data?.message ||
+            "Unable to load attendance status."
+        );
+      } finally {
+        setStatusLoading(false);
+      }
+    };
+
+    loadAttendanceStatus();
+  }, []);
+
   return (
     <Box className="employee-dashboard">
       <Box className="employee-dashboard-heading">
         <Box>
           <Typography component="h1">
-            Welcome back, {user?.fullName || "Employee"}
+            Welcome back,{" "}
+            {user?.fullName || "Employee"}
           </Typography>
 
           <Typography component="p">
-            Manage your attendance and review your work activity.
+            Manage your attendance and review your
+            work activity.
           </Typography>
         </Box>
 
@@ -44,14 +87,25 @@ function EmployeeDashboard() {
         />
       </Box>
 
+      {statusError && (
+        <Alert
+          severity="error"
+          sx={{ mb: 2 }}
+        >
+          {statusError}
+        </Alert>
+      )}
+
       <Box className="employee-summary-grid">
         <Paper className="employee-summary-card">
           <BadgeOutlined />
 
           <Box>
             <span>Employee Code</span>
+
             <strong>
-              {user?.employeeCode || "Not available"}
+              {user?.employeeCode ||
+                "Not available"}
             </strong>
           </Box>
         </Paper>
@@ -61,7 +115,15 @@ function EmployeeDashboard() {
 
           <Box>
             <span>Today's Status</span>
-            <strong>Not Checked In</strong>
+
+            {statusLoading ? (
+              <CircularProgress size={22} />
+            ) : (
+              <strong>
+                {attendanceStatus?.status ||
+                  "Not Checked In"}
+              </strong>
+            )}
           </Box>
         </Paper>
 
@@ -70,6 +132,7 @@ function EmployeeDashboard() {
 
           <Box>
             <span>Face Registration</span>
+
             <strong>
               {user?.faceRegistered
                 ? "Registered"
@@ -90,18 +153,53 @@ function EmployeeDashboard() {
           </Typography>
 
           <Typography component="p">
-            Clock in, start or end a break, record lunch,
-            and clock out using face verification.
+            Clock in, start or end a break, record lunch, and clock out using face verification.
           </Typography>
+
+          {attendanceStatus?.checkInTime && (
+            <Typography
+              component="p"
+              className="employee-attendance-time"
+            >
+              Checked in at{" "}
+              {formatTime(
+                attendanceStatus.checkInTime
+              )}
+            </Typography>
+          )}
+
+          {attendanceStatus?.checkOutTime && (
+            <Typography
+              component="p"
+              className="employee-attendance-time"
+            >
+              Checked out at{" "}
+              {formatTime(
+                attendanceStatus.checkOutTime
+              )}
+            </Typography>
+          )}
 
           <Button
             variant="contained"
             size="large"
             disabled={!user?.faceRegistered}
-            onClick={() => navigate("/employee/clock")}
+            onClick={() =>
+              navigate("/employee/clock")
+            }
           >
             Open Attendance Clock
           </Button>
+
+          {!user?.faceRegistered && (
+            <Alert
+              severity="warning"
+              sx={{ mt: 2 }}
+            >
+              Your face must be registered before
+              recording attendance.
+            </Alert>
+          )}
         </Paper>
 
         <Paper className="employee-profile-card">
@@ -134,7 +232,10 @@ function EmployeeDashboard() {
   );
 }
 
-function InformationRow({ label, value }) {
+function InformationRow({
+  label,
+  value,
+}) {
   return (
     <Box className="employee-profile-row">
       <Typography component="span">
@@ -145,6 +246,20 @@ function InformationRow({ label, value }) {
         {value || "Not available"}
       </Typography>
     </Box>
+  );
+}
+
+function formatTime(value) {
+  if (!value) {
+    return "Not available";
+  }
+
+  return new Date(value).toLocaleTimeString(
+    "en-US",
+    {
+      hour: "numeric",
+      minute: "2-digit",
+    }
   );
 }
 

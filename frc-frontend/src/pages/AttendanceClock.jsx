@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -32,7 +33,6 @@ import apiClient from "../api/apiClient";
 import { useAuth } from "../auth/AuthContext";
 
 import "./AttendanceClock.css";
-
 
 const ATTENDANCE_ACTIONS = [
   {
@@ -73,7 +73,6 @@ const ATTENDANCE_ACTIONS = [
   },
 ];
 
-
 function AttendanceClock() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -81,6 +80,7 @@ function AttendanceClock() {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
+  const previewUrlRef = useRef("");
 
   const [cameraActive, setCameraActive] =
     useState(false);
@@ -100,15 +100,90 @@ function AttendanceClock() {
   const [successResult, setSuccessResult] =
     useState(null);
 
+  const [attendanceStatus, setAttendanceStatus] =
+    useState(null);
+
+  const [statusLoading, setStatusLoading] =
+    useState(true);
+
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current
+        .getTracks()
+        .forEach((track) => track.stop());
+
+      streamRef.current = null;
+    }
+
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+
+    setCameraActive(false);
+  }, []);
+
+  const clearPreview = useCallback(() => {
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(
+        previewUrlRef.current
+      );
+
+      previewUrlRef.current = "";
+    }
+
+    setCapturedPreview("");
+  }, []);
+
+  const loadAttendanceStatus = useCallback(
+    async () => {
+      setStatusLoading(true);
+
+      try {
+        const response = await apiClient.get(
+          "/attendance/my-status"
+        );
+
+        const newStatus = response.data;
+
+        setAttendanceStatus(newStatus);
+
+        setSelectedEvent((currentEvent) => {
+          const allowedActions =
+            newStatus.allowedActions || [];
+
+          return allowedActions.includes(
+            currentEvent
+          )
+            ? currentEvent
+            : "";
+        });
+      } catch (requestError) {
+        setError(
+          requestError.response?.data?.message ||
+            "Unable to load attendance status."
+        );
+      } finally {
+        setStatusLoading(false);
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    loadAttendanceStatus();
+  }, [loadAttendanceStatus]);
+
   useEffect(() => {
     return () => {
       stopCamera();
 
-      if (capturedPreview) {
-        URL.revokeObjectURL(capturedPreview);
+      if (previewUrlRef.current) {
+        URL.revokeObjectURL(
+          previewUrlRef.current
+        );
       }
     };
-  }, [capturedPreview]);
+  }, [stopCamera]);
 
   const startCamera = async () => {
     setError("");
@@ -120,6 +195,8 @@ function AttendanceClock() {
           "Camera access is not supported by this browser."
         );
       }
+
+      clearPreview();
 
       const stream =
         await navigator.mediaDevices.getUserMedia({
@@ -151,22 +228,6 @@ function AttendanceClock() {
         "Unable to access the camera. Check your browser permissions."
       );
     }
-  };
-
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current
-        .getTracks()
-        .forEach((track) => track.stop());
-
-      streamRef.current = null;
-    }
-
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
-    }
-
-    setCameraActive(false);
   };
 
   const captureFaceImage = () => {
@@ -210,10 +271,6 @@ function AttendanceClock() {
         return;
       }
 
-      /*
-       * Mirror the captured frame so it matches
-       * the preview shown to the employee.
-       */
       context.save();
       context.translate(width, 0);
       context.scale(-1, 1);
@@ -265,6 +322,17 @@ function AttendanceClock() {
       return;
     }
 
+    const allowedActions =
+      attendanceStatus?.allowedActions || [];
+
+    if (!allowedActions.includes(selectedEvent)) {
+      setError(
+        "This attendance action is not currently allowed."
+      );
+
+      return;
+    }
+
     if (!cameraActive) {
       setError(
         "Start the camera before recording attendance."
@@ -281,16 +349,13 @@ function AttendanceClock() {
       const imageFile =
         await captureFaceImage();
 
+      clearPreview();
+
       const previewUrl =
         URL.createObjectURL(imageFile);
 
-      setCapturedPreview((previousUrl) => {
-        if (previousUrl) {
-          URL.revokeObjectURL(previousUrl);
-        }
-
-        return previewUrl;
-      });
+      previewUrlRef.current = previewUrl;
+      setCapturedPreview(previewUrl);
 
       const formData = new FormData();
 
@@ -304,16 +369,15 @@ function AttendanceClock() {
         imageFile
       );
 
-      /*
-       * Do not manually set Content-Type.
-       * Axios adds the multipart boundary.
-       */
       const response = await apiClient.post(
         "/attendance/verify-and-record",
         formData
       );
 
       setSuccessResult(response.data);
+
+      await loadAttendanceStatus();
+
       stopCamera();
     } catch (requestError) {
       console.error(
@@ -336,14 +400,9 @@ function AttendanceClock() {
     setSuccessResult(null);
     setError("");
 
-    setCapturedPreview((previousUrl) => {
-      if (previousUrl) {
-        URL.revokeObjectURL(previousUrl);
-      }
+    clearPreview();
 
-      return "";
-    });
-
+    await loadAttendanceStatus();
     await startCamera();
   };
 
@@ -451,6 +510,7 @@ function AttendanceClock() {
                     <CameraAltOutlined />
                   }
                   onClick={startCamera}
+                  disabled={submitting}
                 >
                   Start Camera
                 </Button>
@@ -476,6 +536,7 @@ function AttendanceClock() {
                   <RefreshOutlined />
                 }
                 onClick={resetClock}
+                disabled={submitting}
               >
                 Record Another Action
               </Button>
@@ -503,6 +564,30 @@ function AttendanceClock() {
               </Typography>
             </Box>
           </Box>
+
+          <Alert
+            severity={getStatusSeverity(
+              attendanceStatus?.latestEventType
+            )}
+            sx={{ mb: 2 }}
+          >
+            Current status:{" "}
+            <strong>
+              {statusLoading
+                ? "Loading..."
+                : attendanceStatus?.status ||
+                  "Not Checked In"}
+            </strong>
+
+            {attendanceStatus?.checkInTime && (
+              <>
+                {" — Checked in at "}
+                {formatTime(
+                  attendanceStatus.checkInTime
+                )}
+              </>
+            )}
+          </Alert>
 
           {error && (
             <Alert
@@ -543,10 +628,10 @@ function AttendanceClock() {
 
                 <ResultRow
                   label="Event"
-                  value={
+                  value={formatEventLabel(
                     successResult.attendanceEvent
                       ?.eventType
-                  }
+                  )}
                 />
 
                 <ResultRow
@@ -570,39 +655,65 @@ function AttendanceClock() {
             <>
               <Box className="attendance-action-list">
                 {ATTENDANCE_ACTIONS.map(
-                  (action) => (
-                    <button
-                      type="button"
-                      key={action.eventType}
-                      className={
-                        selectedEvent ===
+                  (action) => {
+                    const allowedActions =
+                      attendanceStatus
+                        ?.allowedActions || [];
+
+                    const isAllowed =
+                      allowedActions.includes(
                         action.eventType
-                          ? "attendance-action selected"
-                          : "attendance-action"
-                      }
-                      onClick={() => {
-                        setSelectedEvent(
+                      );
+
+                    return (
+                      <button
+                        type="button"
+                        key={action.eventType}
+                        disabled={
+                          statusLoading ||
+                          !isAllowed ||
+                          submitting
+                        }
+                        className={
+                          selectedEvent ===
                           action.eventType
-                        );
+                            ? "attendance-action selected"
+                            : "attendance-action"
+                        }
+                        onClick={() => {
+                          if (!isAllowed) {
+                            return;
+                          }
 
-                        setError("");
-                      }}
-                    >
-                      <span className="attendance-action-icon">
-                        {action.icon}
-                      </span>
+                          setSelectedEvent(
+                            action.eventType
+                          );
 
-                      <span className="attendance-action-text">
-                        <strong>
-                          {action.label}
-                        </strong>
+                          setError("");
+                        }}
+                      >
+                        <span className="attendance-action-icon">
+                          {action.icon}
+                        </span>
 
-                        <small>
-                          {action.description}
-                        </small>
-                      </span>
-                    </button>
-                  )
+                        <span className="attendance-action-text">
+                          <strong>
+                            {action.label}
+                          </strong>
+
+                          <small>
+                            {isAllowed
+                              ? action.description
+                              : getDisabledActionMessage(
+                                  action.eventType,
+                                  attendanceStatus
+                                    ?.latestEventType
+                                )}
+                          </small>
+                        </span>
+                      </button>
+                    );
+                  }
                 )}
               </Box>
 
@@ -612,6 +723,7 @@ function AttendanceClock() {
                 size="large"
                 className="attendance-submit-button"
                 disabled={
+                  statusLoading ||
                   !selectedEvent ||
                   !cameraActive ||
                   submitting
@@ -620,7 +732,11 @@ function AttendanceClock() {
               >
                 {submitting
                   ? "Verifying..."
-                  : "Verify Face and Record"}
+                  : selectedEvent
+                    ? `Verify Face and ${formatEventLabel(
+                        selectedEvent
+                      )}`
+                    : "Select an Attendance Action"}
               </Button>
 
               {!cameraActive && (
@@ -637,7 +753,6 @@ function AttendanceClock() {
   );
 }
 
-
 function ResultRow({ label, value }) {
   return (
     <Box className="attendance-result-row">
@@ -651,7 +766,6 @@ function ResultRow({ label, value }) {
     </Box>
   );
 }
-
 
 function formatDateTime(value) {
   if (!value) {
@@ -667,5 +781,74 @@ function formatDateTime(value) {
   );
 }
 
+function formatTime(value) {
+  if (!value) {
+    return "Not available";
+  }
+
+  return new Date(value).toLocaleTimeString(
+    "en-US",
+    {
+      hour: "numeric",
+      minute: "2-digit",
+    }
+  );
+}
+
+function formatEventLabel(eventType) {
+  const labels = {
+    CHECK_IN: "Clock In",
+    BREAK_START: "Start Break",
+    BREAK_END: "End Break",
+    LUNCH_START: "Start Lunch",
+    LUNCH_END: "End Lunch",
+    CHECK_OUT: "Clock Out",
+  };
+
+  return labels[eventType] ||
+    "Record Attendance";
+}
+
+function getStatusSeverity(latestEventType) {
+  switch (latestEventType) {
+    case "CHECK_IN":
+    case "BREAK_END":
+    case "LUNCH_END":
+      return "success";
+
+    case "BREAK_START":
+    case "LUNCH_START":
+      return "warning";
+
+    case "CHECK_OUT":
+      return "info";
+
+    default:
+      return "info";
+  }
+}
+
+function getDisabledActionMessage(
+  eventType,
+  latestEventType
+) {
+  if (latestEventType === "CHECK_OUT") {
+    return "Workday already completed";
+  }
+
+  const messages = {
+    CHECK_IN: "Available before starting work",
+    BREAK_START: "Available while working",
+    BREAK_END: "Available while on break",
+    LUNCH_START: "Available while working",
+    LUNCH_END: "Available while at lunch",
+    CHECK_OUT: "Available while working",
+  };
+
+  return (
+    messages[eventType] ||
+    "Not available for current status"
+  );
+}
 
 export default AttendanceClock;

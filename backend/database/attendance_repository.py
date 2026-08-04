@@ -43,6 +43,45 @@ def get_latest_attendance_event(
     finally:
         connection.close()
 
+def get_today_attendance_events(
+    employee_id: int,
+) -> list[dict[str, Any]]:
+    connection = create_connection()
+
+    if connection is None:
+        raise RuntimeError(
+            "Unable to connect to PostgreSQL."
+        )
+
+    try:
+        with connection.cursor(
+            row_factory=dict_row
+        ) as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    id,
+                    employee_id,
+                    event_type,
+                    event_time,
+                    verification_method,
+                    face_distance
+                FROM attendance_events
+                WHERE
+                    employee_id = %s
+                    AND event_time::date = CURRENT_DATE
+                ORDER BY event_time ASC, id ASC
+                """,
+                (employee_id,),
+            )
+
+            return [
+                dict(row)
+                for row in cursor.fetchall()
+            ]
+
+    finally:
+        connection.close()
 
 def create_attendance_event(
     employee_id: int,

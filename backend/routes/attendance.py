@@ -18,6 +18,7 @@ from werkzeug.datastructures import FileStorage
 from database.attendance_repository import (
     create_attendance_event,
     get_latest_attendance_event,
+    get_today_attendance_events,
 )
 
 from database.face_repository import (
@@ -25,6 +26,8 @@ from database.face_repository import (
 )
 
 from services.attendance_service import (
+    get_allowed_attendance_actions,
+    get_attendance_status_label,
     validate_attendance_transition,
 )
 
@@ -94,6 +97,101 @@ def save_temporary_face_image(
 
     return temp_path
 
+@attendance_bp.get("/my-status")
+@jwt_required()
+def get_my_attendance_status():
+    try:
+        claims = get_jwt()
+
+        employee_id = claims.get("employeeId")
+
+        if not employee_id:
+            return jsonify({
+                "message": (
+                    "This user account is not linked "
+                    "to an employee."
+                )
+            }), 403
+
+        events = get_today_attendance_events(
+            int(employee_id)
+        )
+
+        latest_event = (
+            events[-1]
+            if events
+            else None
+        )
+
+        latest_event_type = (
+            latest_event["event_type"]
+            if latest_event
+            else None
+        )
+
+        check_in_event = next(
+            (
+                event
+                for event in events
+                if event["event_type"] == "CHECK_IN"
+            ),
+            None,
+        )
+
+        check_out_event = next(
+            (
+                event
+                for event in reversed(events)
+                if event["event_type"] == "CHECK_OUT"
+            ),
+            None,
+        )
+
+        return jsonify({
+            "status": get_attendance_status_label(
+                latest_event_type
+            ),
+            "latestEventType": latest_event_type,
+            "allowedActions":
+                get_allowed_attendance_actions(
+                    latest_event_type
+                ),
+            "checkInTime": (
+                check_in_event["event_time"].isoformat()
+                if check_in_event
+                else None
+            ),
+            "checkOutTime": (
+                check_out_event["event_time"].isoformat()
+                if check_out_event
+                else None
+            ),
+            "events": [
+                {
+                    "id": event["id"],
+                    "eventType": event["event_type"],
+                    "eventTime":
+                        event["event_time"].isoformat(),
+                    "verificationMethod":
+                        event["verification_method"],
+                    "faceDistance":
+                        event["face_distance"],
+                }
+                for event in events
+            ],
+        }), 200
+
+    except Exception as error:
+        current_app.logger.exception(
+            "Unable to retrieve attendance status."
+        )
+
+        return jsonify({
+            "message": (
+                "Unable to retrieve attendance status."
+            ),
+            "error": str(error),
+        }), 500
 
 @attendance_bp.post("/verify-and-record")
 @jwt_required()
@@ -177,8 +275,13 @@ def verify_and_record_attendance():
                 "threshold": FACE_THRESHOLD,
             }), 403
 
-        latest_event = get_latest_attendance_event(
+        today_events = get_today_attendance_events(
             int(employee_id)
+        )
+        latest_event = (
+            today_events[-1]
+            if today_events
+            else None
         )
 
         latest_event_type = (

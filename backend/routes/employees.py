@@ -2,12 +2,17 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
-
+from flask_jwt_extended import (
+    get_jwt,
+    jwt_required,
+)
 from flask import Blueprint, current_app, jsonify, request
 from psycopg import errors
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
-
+from database.dashboard_repository import (
+    get_admin_dashboard_summary,
+)
 from services.face_service import generate_face_embedding 
 from database.employee_repository import (
     create_employee,
@@ -461,5 +466,125 @@ def delete_employee(employee_code: str):
 
         return jsonify({
             "message": "Unable to delete employee.",
+            "error": str(error),
+        }), 500
+
+@employees_bp.get("/dashboard-summary")
+@jwt_required()
+def get_dashboard_summary():
+    try:
+        claims = get_jwt()
+
+        role = str(
+            claims.get("role", "")
+        ).upper()
+
+        if role not in {
+            "ADMIN",
+            "HR",
+            "MANAGER",
+        }:
+            return jsonify({
+                "message": (
+                    "You do not have permission "
+                    "to view the admin dashboard."
+                )
+            }), 403
+
+        summary = get_admin_dashboard_summary()
+
+        employee_summary = summary[
+            "employee_summary"
+        ]
+
+        attendance_summary = summary[
+            "attendance_summary"
+        ]
+
+        recent_events = summary[
+            "recent_events"
+        ]
+
+        return jsonify({
+            "totalEmployees": (
+                employee_summary.get(
+                    "total_employees",
+                    0,
+                )
+            ),
+            "activeEmployees": (
+                employee_summary.get(
+                    "active_employees",
+                    0,
+                )
+            ),
+            "inactiveEmployees": (
+                employee_summary.get(
+                    "inactive_employees",
+                    0,
+                )
+            ),
+            "faceRegisteredEmployees": (
+                employee_summary.get(
+                    "face_registered_employees",
+                    0,
+                )
+            ),
+            "currentlyClockedIn": (
+                attendance_summary.get(
+                    "currently_clocked_in",
+                    0,
+                )
+            ),
+            "clockedOutToday": (
+                attendance_summary.get(
+                    "clocked_out_today",
+                    0,
+                )
+            ),
+            "recentEvents": [
+                {
+                    "id": event["id"],
+                    "employeeCode": event[
+                        "employee_code"
+                    ],
+                    "fullName": event[
+                        "full_name"
+                    ],
+                    "department": event[
+                        "department"
+                    ],
+                    "designation": event[
+                        "designation"
+                    ],
+                    "eventType": event[
+                        "event_type"
+                    ],
+                    "eventTime": event[
+                        "event_time"
+                    ].isoformat(),
+                    "verificationMethod": event[
+                        "verification_method"
+                    ],
+                    "faceDistance": (
+                        float(event["face_distance"])
+                        if event.get("face_distance")
+                        is not None
+                        else None
+                    ),
+                }
+                for event in recent_events
+            ],
+        }), 200
+
+    except Exception as error:
+        current_app.logger.exception(
+            "Unable to retrieve dashboard summary."
+        )
+
+        return jsonify({
+            "message": (
+                "Unable to retrieve dashboard summary."
+            ),
             "error": str(error),
         }), 500
